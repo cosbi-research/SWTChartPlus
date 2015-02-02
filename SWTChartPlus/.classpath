@@ -2,5 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="/java_pro_swt/lib/swt/swt-osx64-4.4.jar"/>
+	<classpathentry kind="lib" path="/java_pro_swt/lib/org.eclipse.jface.jar" sourcepath="/Applications/eclipse/plugins/org.eclipse.jface.source_3.10.0.v20140604-0740.jar"/>
+	<classpathentry kind="lib" path="/java_pro_swt/lib/org.eclipse.core.commands.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

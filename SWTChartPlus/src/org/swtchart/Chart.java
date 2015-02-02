@@ -33,7 +33,7 @@ import org.swtchart.internal.series.SeriesSet;
  */
 public class Chart extends Composite implements Listener {
 
-    /** the title */
+    /** the title */ 
     private Title title;
 
     /** the legend */
