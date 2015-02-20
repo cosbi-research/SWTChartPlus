@@ -8,6 +8,7 @@ package org.swtchart;
 
 import java.util.Date;
 
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
 /**
@@ -221,9 +222,29 @@ public interface ISeries {
      */
     String getDescription();
 
+    /**
+     *  Sets the series data
+     * @param data the series data, or <tt>null</tt> to clear it
+     */
     void setData(Object data);
     
+    /**
+     * Gets the series data
+     * @return the series data, or <tt>null<tt> if not set
+     */
     Object getData();
+    
+    /**
+     * Sets the series icon
+     * @param icon the series icon, or <tt>null</tt> to clear it
+     */
+    void setIcon(Image icon);
+    
+    /**
+     * Gets the series icon
+     * @return the series icon, or <tt>null<tt> if not set
+     */
+    Image getIcon();
 
     /**
      * Gets the pixel coordinates corresponding to the given series index.

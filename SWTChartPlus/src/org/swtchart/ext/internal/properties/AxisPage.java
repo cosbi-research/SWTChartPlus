@@ -36,10 +36,6 @@ import org.swtchart.Range;
 import org.swtchart.ext.InteractiveChart;
 import org.swtchart.internal.series.Series;
 
-//import gfx.S;
-//import ui.swt.AppMain;
-//import ui.swt.AppResources;
-
 /**
  * The axis page on properties dialog.
  */

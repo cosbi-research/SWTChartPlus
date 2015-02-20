@@ -29,8 +29,6 @@ import org.swtchart.ITitle;
 import org.swtchart.ext.InteractiveChart;
 import org.swtchart.internal.ChartTitle;
 
-//import ui.swt.AppMain;
-
 /**
  * The chart property page on properties dialog.
  */

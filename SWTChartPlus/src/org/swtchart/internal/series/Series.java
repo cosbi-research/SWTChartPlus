@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Event;
 import org.swtchart.Chart;
@@ -102,7 +103,11 @@ abstract public class Series implements ISeries {
     /** the list of dispose listeners */
     private List<IDisposeListener> listeners;
     
+    /** the series data */
     private Object data;
+    
+    /** the series icon, it is shown in the legend */
+    private Image icon;
 
     /**
      * Constructor.
@@ -623,11 +628,31 @@ abstract public class Series implements ISeries {
     public void setDescription(String description) {
         this.description = description;
     }
+    
+    /*
+     * @see ISeries#getIcon()
+     */
+    public Image getIcon() {
+        return icon;
+    }
+    
+    /*
+     * @see ISeries#setIcon()
+     */
+    public void setIcon(Image icon) {
+        this.icon = icon;
+    }
 
+    /*
+     * @see ISeries#getData()
+     */
     public Object getData() {
         return data;
     }
     
+    /*
+     * @see ISeries#setData()
+     */
     public void setData(Object data) {
         this.data = data;
     }

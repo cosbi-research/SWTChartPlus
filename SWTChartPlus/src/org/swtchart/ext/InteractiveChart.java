@@ -23,10 +23,6 @@ import org.swtchart.ext.internal.properties.AxisPage;
 import org.swtchart.ext.internal.properties.ChartPage;
 import org.swtchart.ext.internal.properties.PropertiesResources;
 
-//import gfx.S;
-//import ui.swt.AppResources;
-//import ui.swt.tabEditors.TabTimeSeries;
-
 /**
  * An interactive chart which provides the following abilities.
  * <ul>
