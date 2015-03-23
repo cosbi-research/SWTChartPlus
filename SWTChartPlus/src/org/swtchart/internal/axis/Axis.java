@@ -18,6 +18,7 @@ import org.swtchart.IGrid;
 import org.swtchart.ISeries;
 import org.swtchart.ITitle;
 import org.swtchart.Range;
+import org.swtchart.ext.InteractiveChart;
 import org.swtchart.internal.Grid;
 import org.swtchart.internal.series.Series;
 import org.swtchart.internal.series.SeriesSet;
@@ -261,7 +262,6 @@ public class Axis implements IAxis {
      * @see IAxis#enableLogScale(boolean)
      */
     public void enableLogScale(boolean enabled) throws IllegalStateException {
-
         if (logScaleEnabled == enabled) {
             return;
         }
@@ -408,6 +408,7 @@ public class Axis implements IAxis {
      * @see IAxis#zoomIn(double)
      */
     public void zoomIn(double coordinate) {
+    	InteractiveChart.setVisibleToolTip(false);
         double lower = min;
         double upper = max;
         if (isValidCategoryAxis()) {
@@ -448,6 +449,7 @@ public class Axis implements IAxis {
      * @see IAxis#zoomOut(double)
      */
     public void zoomOut(double coordinate) {
+    	InteractiveChart.setVisibleToolTip(false);
         double lower = min;
         double upper = max;
         if (isValidCategoryAxis()) {
@@ -480,6 +482,7 @@ public class Axis implements IAxis {
      * @see IAxis#scrollUp()
      */
     public void scrollUp() {
+    	InteractiveChart.setVisibleToolTip(false);
         double lower = min;
         double upper = max;
         if (isValidCategoryAxis()) {
@@ -502,6 +505,7 @@ public class Axis implements IAxis {
     }
     
     public void scrollUp(double i) {
+    	InteractiveChart.setVisibleToolTip(false);
     	double lower = min;
         double upper = max;
     	/*if (isLogScaleEnabled()) {
@@ -521,6 +525,7 @@ public class Axis implements IAxis {
      * @see IAxis#scrollDown()
      */
     public void scrollDown() {
+    	InteractiveChart.setVisibleToolTip(false);
         double lower = min;
         double upper = max;
         if (isValidCategoryAxis()) {
@@ -544,7 +549,8 @@ public class Axis implements IAxis {
     }
     
     public void scrollDown(double i) {
-    	double lower = min - i;
+    	InteractiveChart.setVisibleToolTip(false);
+        double lower = min - i;
         double upper = max - i;
         setRange(new Range(lower, upper));
     }

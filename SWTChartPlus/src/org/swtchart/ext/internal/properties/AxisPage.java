@@ -544,9 +544,15 @@ public class AxisPage extends AbstractSelectorPage {
 	        //logScaleButton = createCheckBoxControl(comp, "Enable log scale");
 	        logScaleButton = new Button(comp, SWT.CHECK);
 	        logScaleButton.setText("Enable log scale");
+	        final String toolTipLogScale = "Toggle log scale (CTRL+L)";
+	        logScaleButton.setToolTipText(toolTipLogScale);
 	        logScaleButton.addSelectionListener(new SelectionAdapter() {
 	            @Override
 	            public void widgetSelected(SelectionEvent e) {
+	            	if(logScaleButton.getToolTipText().equals(toolTipLogScale))
+	        	        logScaleButton.setToolTipText("Toggle linear scale (CTRL+L)");
+	            	else
+	        	        logScaleButton.setToolTipText(toolTipLogScale);	            		
 	                logScaleStates[selectedIndex] = logScaleButton.getSelection();
 	                checkValuesForLogScale(logScaleButton.getSelection());
 	                apply();

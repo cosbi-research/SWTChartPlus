@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ToolTip;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.IAxis.Direction;
@@ -50,13 +51,13 @@ public class InteractiveChart extends Chart implements PaintListener {
     private PropertiesResources resources;
     
     /** true if the mouse left button is pressed, otherwise false */
-    private boolean mousePressed = false;
+    public boolean mousePressed = false;
     /** coordinate x of the mouse on the screen */
     private int pos_x_mouse = 0; 
     /** coordinate y of the mouse on the screen */
     private int pos_y_mouse = 0; 
     /** true if the CTRL on Windows or MELA on Mac is pressed, otherwise false */
-    private boolean ctrlPressed = false;
+    public boolean ctrlPressed = false;
     
     public boolean propertiesDialogOpen = false;
 
@@ -67,6 +68,8 @@ public class InteractiveChart extends Chart implements PaintListener {
 	private Cursor cursorDefault;
 	/** shows the position of the mouse in the graph */
 	private Label lblMousePosition;
+	
+	public static ToolTip toolTip;
 	
 	/** true if the platform is Mac, otherwise false */
 	public static boolean isMac = System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0;	//PApplet.platform == PConstants.MACOSX;
@@ -262,6 +265,7 @@ public class InteractiveChart extends Chart implements PaintListener {
         if(mousePressed){
         	// PAN
         	if(!ctrlPressed){
+        		setVisibleToolTip(false);
 	    		double xMouseDown = getAxisSet().getXAxis(0).getDataCoordinate(pos_x_mouse);
 	            double yMouseDown = getAxisSet().getYAxis(0).getDataCoordinate(pos_y_mouse);
 	            double xMouseMove = getAxisSet().getXAxis(0).getDataCoordinate(event.x);
@@ -280,6 +284,7 @@ public class InteractiveChart extends Chart implements PaintListener {
 	        	}
 	        	// Pan if the log scale is enabled
 	        	if(yAxis.isLogScaleEnabled()){
+	        		setVisibleToolTip(false);
 	        		if(diff_y != 0){
 		        		double upper = getAxisSet().getYAxis(0).getRange().upper;
 		        		double lower = getAxisSet().getYAxis(0).getRange().lower;
@@ -449,6 +454,14 @@ public class InteractiveChart extends Chart implements PaintListener {
         } else if (event.character == '-' || event.keyCode == '-') {
         	if (event.stateMask == SWT.CTRL || event.stateMask == SWT.COMMAND) {
                 getAxisSet().zoomOut();
+            } 
+            redraw();
+        } 
+        else if (event.character == 'L' || event.keyCode == 'L'
+        		|| event.character == 'l' || event.keyCode == 'l') {
+        	if (event.stateMask == SWT.CTRL || event.stateMask == SWT.COMMAND) {
+        		setVisibleToolTip(false);
+        		getAxisSet().getYAxis(0).enableLogScale(!getAxisSet().getYAxis(0).isLogScaleEnabled());
             } 
             redraw();
         } 
@@ -660,5 +673,14 @@ public class InteractiveChart extends Chart implements PaintListener {
      */
 	public void setLblMousePosition(Label lblMousePosition) {
 		this.lblMousePosition = lblMousePosition;
+	}
+	
+	/**
+     * Sets the visible of the toolTip
+	 * @param visible if true the toolTip is shown, else it is hidden
+	 */
+	public static void setVisibleToolTip(boolean visible) {
+		if(toolTip!=null)
+			toolTip.setVisible(visible);
 	}
 }
