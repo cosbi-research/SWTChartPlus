@@ -25,12 +25,13 @@ import org.swtchart.ext.internal.properties.ChartPage;
 import org.swtchart.ext.internal.properties.PropertiesResources;
 
 /**
- * An interactive chart which provides the following abilities.
+ * An interactive chart which provides the following abilities:
  * <ul>
- * <li>scroll with arrow keys</li>
- * <li>zoom in and out with ctrl + arrow up/down keys</li>
- * <li>context menus for adjusting axis range and zooming in/out.</li>
- * <li>file selector dialog to save chart to image file.</li>
+ * <li>scroll: mouse dragged, arrow keys</li>
+ * <li>zoom: mouse wheel, zoom in: Ctrl+Plus, zoom out: Ctrl+Minus</li>
+ * <li>toggle log/linear scale: Ctrl+L</li>
+ * <li>context menus for adjusting axis range and zooming in/out</li>
+ * <li>file selector dialog to save chart to image file</li>
  * <li>properties dialog to configure the chart settings</li>
  * </ul>
  */
@@ -83,7 +84,7 @@ public class InteractiveChart extends Chart implements PaintListener {
      *            the style
      */
     public InteractiveChart(Composite parent, int style) {
-        super(parent, style);
+    	super(parent, style);
         init();
     }
 
@@ -262,10 +263,10 @@ public class InteractiveChart extends Chart implements PaintListener {
      *            the mouse move event
      */
     private void handleMouseMoveEvent(Event event) {
+		setVisibleToolTip(false);
         if(mousePressed){
         	// PAN
         	if(!ctrlPressed){
-        		setVisibleToolTip(false);
 	    		double xMouseDown = getAxisSet().getXAxis(0).getDataCoordinate(pos_x_mouse);
 	            double yMouseDown = getAxisSet().getYAxis(0).getDataCoordinate(pos_y_mouse);
 	            double xMouseMove = getAxisSet().getXAxis(0).getDataCoordinate(event.x);
@@ -307,10 +308,8 @@ public class InteractiveChart extends Chart implements PaintListener {
     		pos_x_mouse = event.x;
     		pos_y_mouse = event.y;
         }
-//        TabTimeSeries.highlight = false;
         double x = getAxisSet().getXAxis(0).getDataCoordinate(event.x);
         double y = getAxisSet().getYAxis(0).getDataCoordinate(event.y);
-//        S.ui_.updateStatusBar("Mouse position: ("+((double)((int)(x*100)))/100 + ", " + ((double)((int)(y*100)))/100+")");
         if(lblMousePosition!=null)
         	lblMousePosition.setText("Mouse position: ("+((double)((int)(x*100)))/100 + ", " + ((double)((int)(y*100)))/100+")");
     }

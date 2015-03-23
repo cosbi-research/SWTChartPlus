@@ -482,8 +482,7 @@ public class AxisPage extends AbstractSelectorPage {
         
         comp.setLayoutData(gridData);
         Label lblPos = createLabelControl(comp, "Position:");
-        String[] items = new String[] { Position.Primary.name(),
-                Position.Secondary.name() };
+//        String[] items = new String[] { Position.Primary.name(), Position.Secondary.name() };
         lblPos.pack();
         lblPos.setLocation(0,0);
 
@@ -544,7 +543,7 @@ public class AxisPage extends AbstractSelectorPage {
 	        //logScaleButton = createCheckBoxControl(comp, "Enable log scale");
 	        logScaleButton = new Button(comp, SWT.CHECK);
 	        logScaleButton.setText("Enable log scale");
-	        final String toolTipLogScale = "Toggle log scale (CTRL+L)";
+	        final String toolTipLogScale = "Toggle log scale (Ctrl+L)";
 	        logScaleButton.setToolTipText(toolTipLogScale);
 	        logScaleButton.addSelectionListener(new SelectionAdapter() {
 	            @Override
@@ -583,11 +582,8 @@ public class AxisPage extends AbstractSelectorPage {
 	    	}
     	}
     	else{
-//    		if(S.ui_.tabTimeSeries.combo.isVisible())
         	if(chart.getSeriesSet().getSeries().length>0)    			 
 	    		for (ISeries series : chart.getSeriesSet().getSeries()) {
-	    			String id = ((Series)series).getId();
-//	    			double[] v = AppResources.getSimulatedTS(S.ui_.tabTimeSeries.combo.getSelectionIndex()).getDynamicsTs(id);
 	    			double[] v = ((Series)series).getYSeries();
 		            if(v!=null)
 		            	((Series)series).setYSeries(v);
@@ -617,11 +613,8 @@ public class AxisPage extends AbstractSelectorPage {
     	    	}
         	}
         	else{
-//        		if(S.ui_.tabTimeSeries.combo.isVisible())
             	if(chart.getSeriesSet().getSeries().length>0)    
     	    		for (ISeries series : chart.getSeriesSet().getSeries()) {
-    	    			String id = ((Series)series).getId();
-//    		            double[] v = AppResources.getSimulatedTS(S.ui_.tabTimeSeries.combo.getSelectionIndex()).getTimeTs();
     		            double[] v = ((Series)series).getXSeries();
     		            if(v!=null)
     		            	((Series)series).setXSeries(v);
