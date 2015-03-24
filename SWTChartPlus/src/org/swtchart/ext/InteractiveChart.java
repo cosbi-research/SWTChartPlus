@@ -27,9 +27,9 @@ import org.swtchart.ext.internal.properties.PropertiesResources;
 /**
  * An interactive chart which provides the following abilities:
  * <ul>
- * <li>scroll: mouse dragged, arrow keys</li>
- * <li>zoom: mouse wheel, zoom in: Ctrl+Plus, zoom out: Ctrl+Minus</li>
- * <li>toggle log/linear scale: Ctrl+L</li>
+ * <li>scroll with mouse drag and arrow keys</li>
+ * <li>zoom with mouse wheel, zoom in with Ctrl+Plus, zoom out with Ctrl+Minus</li>
+ * <li>toggle log/linear scale with Ctrl+L</li>
  * <li>context menus for adjusting axis range and zooming in/out</li>
  * <li>file selector dialog to save chart to image file</li>
  * <li>properties dialog to configure the chart settings</li>

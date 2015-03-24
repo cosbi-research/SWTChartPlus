@@ -470,7 +470,9 @@ public class Legend extends Composite implements ILegend, PaintListener {
             	gc.drawImage((Image)seriesArray[i].getIcon(), r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
             //gc.drawImage(AppResources.swtGetImageResource("/img/protein16.png"), r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
             gc.drawText("     "+label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-//            gc.drawText(label, ((Image)seriesArray[i].getData()).getImageData().width+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+//          gc.drawText(label, ((Image)seriesArray[i].getData()).getImageData().width+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+            
+            
         }
     }
     

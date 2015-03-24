@@ -549,7 +549,7 @@ public class AxisPage extends AbstractSelectorPage {
 	            @Override
 	            public void widgetSelected(SelectionEvent e) {
 	            	if(logScaleButton.getToolTipText().equals(toolTipLogScale))
-	        	        logScaleButton.setToolTipText("Toggle linear scale (CTRL+L)");
+	        	        logScaleButton.setToolTipText("Toggle linear scale (Ctrl+L)");
 	            	else
 	        	        logScaleButton.setToolTipText(toolTipLogScale);	            		
 	                logScaleStates[selectedIndex] = logScaleButton.getSelection();
