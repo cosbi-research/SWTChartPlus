@@ -17,12 +17,14 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolTip;
 import org.swtchartplus.Chart;
 import org.swtchartplus.IAxis;
-import org.swtchartplus.Range;
 import org.swtchartplus.IAxis.Direction;
+import org.swtchartplus.ISeries;
+import org.swtchartplus.Range;
 import org.swtchartplus.ext.internal.SelectionRectangle;
 import org.swtchartplus.ext.internal.properties.AxisPage;
 import org.swtchartplus.ext.internal.properties.ChartPage;
 import org.swtchartplus.ext.internal.properties.PropertiesResources;
+import org.swtchartplus.internal.Legend;
 
 /**
  * An interactive chart which provides the following abilities:
@@ -308,10 +310,28 @@ public class InteractiveChart extends Chart implements PaintListener {
     		pos_x_mouse = event.x;
     		pos_y_mouse = event.y;
         }
-        double x = getAxisSet().getXAxis(0).getDataCoordinate(event.x);
-        double y = getAxisSet().getYAxis(0).getDataCoordinate(event.y);
+        double xPosMouse = getAxisSet().getXAxis(0).getDataCoordinate(event.x);
+        double yPosMouse = getAxisSet().getYAxis(0).getDataCoordinate(event.y);
         if(lblMousePosition!=null)
-        	lblMousePosition.setText("Mouse position: ("+((double)((int)(x*100)))/100 + ", " + ((double)((int)(y*100)))/100+")");
+        	lblMousePosition.setText("Mouse position: ("+((double)((int)(xPosMouse*100)))/100 + ", " + ((double)((int)(yPosMouse*100)))/100+")");
+        
+       ISeries[] series = getSeriesSet().getSeries();
+       if(series.length==0){
+       		return;
+       }       
+       double[] vTime;
+//       if(simFile)
+//       	vTime = vTime_;
+//       else
+       	vTime = series[0].getXSeries();
+       Legend.xNearMouse = vTime.length-1;
+       for (int i = 0; i < vTime.length-1; i++) {
+			if(Math.abs((float)(vTime[i]-xPosMouse))<Math.abs((float)(vTime[i+1]-xPosMouse))){
+				Legend.xNearMouse=i;
+				System.out.println("Point: vTime[i], i="+i);
+				break;
+			}
+		}
     }
     
     /**

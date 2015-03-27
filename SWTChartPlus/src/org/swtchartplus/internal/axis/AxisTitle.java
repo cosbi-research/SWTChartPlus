@@ -52,10 +52,9 @@ public class AxisTitle extends Title {
     public AxisTitle(Chart chart, int style, Axis axis, Direction direction) {
         super(chart);
         this.axis = axis;
-        this.direction = direction;
-        defaultFont = new Font(Display.getDefault(), "Tahoma",
-                DEFAULT_FONT_SIZE, SWT.BOLD);
-        setFont(defaultFont);
+        this.direction = direction;        
+        defaultFont = new Font(Display.getDefault(), "Tahoma", DEFAULT_FONT_SIZE, SWT.BOLD);
+        setFont(defaultFont);        
         setText(getDefaultText());
     }
 

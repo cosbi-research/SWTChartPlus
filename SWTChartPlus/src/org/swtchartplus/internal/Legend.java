@@ -23,14 +23,14 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.swtchartplus.internal.series.LineSeries;
-import org.swtchartplus.internal.series.Series;
 import org.swtchartplus.Chart;
 import org.swtchartplus.Constants;
 import org.swtchartplus.IBarSeries;
 import org.swtchartplus.ILegend;
 import org.swtchartplus.ILineSeries;
 import org.swtchartplus.ISeries;
+import org.swtchartplus.internal.series.LineSeries;
+import org.swtchartplus.internal.series.Series;
 
 /**
  * A legend for chart.
@@ -75,6 +75,12 @@ public class Legend extends Composite implements ILegend, PaintListener {
     /** the map between series id and cell bounds */
     private Map<String, Rectangle> cellBounds;
 
+    public static int xNearMouse = 0;
+    
+    public static int numDecimals = 0;
+    
+    int inc = 0;
+
     /**
      * Constructor.
      *
@@ -90,8 +96,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
         visible = true;
         position = DEFAULT_POSITION;
         cellBounds = new HashMap<String, Rectangle>();
-        defaultFont = new Font(Display.getDefault(), "Tahoma",
-                DEFAULT_FONT_SIZE, SWT.NORMAL);
+        defaultFont = new Font(Display.getDefault(), "Tahoma", DEFAULT_FONT_SIZE, SWT.NORMAL);
         setFont(defaultFont);
         setForeground(DEFAULT_FOREGROUND);
         setBackground(DEFAULT_BACKGROUND);
@@ -297,7 +302,6 @@ public class Legend extends Composite implements ILegend, PaintListener {
             setLayoutData(new ChartLayoutData(0, 0));
             return;
         }
-
         int width = 0;
         int height = 0;
 
@@ -347,20 +351,24 @@ public class Legend extends Composite implements ILegend, PaintListener {
                 String label = getLegendLabel(series);
                 int textWidth = Util.getExtentInGC(getFont(), label).x;
                 int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3 + 20;
+                if(series.getYSeries().length>0){
+	                int d = (int) series.getYSeries()[xNearMouse];
+	                cellWidth +=Util.getExtentInGC(getFont(), String.valueOf(d)+"  ").x;
+                }
                 if (xPosition + cellWidth < r.width || xPosition == 0) {
                     xPosition += cellWidth;
                 } else {
                     rows++;
                     xPosition = cellWidth;
                 }
-                cellBounds.put(series.getId(), new Rectangle(xPosition
-                        - cellWidth, (cellHeight + MARGIN) * (rows - 1)
-                        + MARGIN, cellWidth, cellHeight));
+                cellBounds.put(series.getId(), new Rectangle(xPosition - cellWidth, 
+                		(cellHeight + MARGIN) * (rows - 1) + MARGIN,
+                		cellWidth, cellHeight));
                 width = Math.max(xPosition, width);
             }
             height = (cellHeight + MARGIN) * rows + MARGIN;
-        }
-
+        }        
+        width+=inc+5;
         setLayoutData(new ChartLayoutData(width, height));
     }
 
@@ -435,6 +443,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
             return;
         }
 
+        updateLayoutData();
         GC gc = e.gc;
         gc.setFont(getFont());
         ISeries[] seriesArray = chart.getSeriesSet().getSeries();
@@ -449,6 +458,13 @@ public class Legend extends Composite implements ILegend, PaintListener {
         gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
         gc.drawRectangle(0, 0, getSize().x - 1, getSize().y - 1);
 
+        gc.setBackground(getBackground());
+        gc.setForeground(getForeground());
+        String sXnearMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearMouse]);
+        sXnearMouse = sXnearMouse.replace(',', '.');
+        gc.drawText(" Hours: "+sXnearMouse, 2, 5, true);
+        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearMouse+"  ").x;
+        updateLayoutData();
         // draw content
         for (int i = 0; i < seriesArray.length; i++) {
             if (!seriesArray[i].isVisibleInLegend()) {
@@ -458,8 +474,8 @@ public class Legend extends Composite implements ILegend, PaintListener {
             // draw plot line, symbol etc
             String id = seriesArray[i].getId();
             Rectangle r = cellBounds.get(id);
-            drawSymbol(gc, (Series) seriesArray[i], new Rectangle(r.x + MARGIN,
-                    r.y + MARGIN, SYMBOL_WIDTH, r.height - MARGIN * 2));
+//            System.out.println(r.width);
+            drawSymbol(gc, (Series) seriesArray[i], new Rectangle(inc+r.x + MARGIN, r.y + MARGIN, SYMBOL_WIDTH, r.height - MARGIN * 2));
 
             // draw label
             String label = seriesArray[i].getDescription();// getLegendLabel(seriesArray[i]);
@@ -467,13 +483,18 @@ public class Legend extends Composite implements ILegend, PaintListener {
             gc.setForeground(getForeground());
             //gc.drawText(label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
             if(seriesArray[i].getIcon()!=null)
-            	gc.drawImage((Image)seriesArray[i].getIcon(), r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
+            	gc.drawImage((Image)seriesArray[i].getIcon(), inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
             //gc.drawImage(AppResources.swtGetImageResource("/img/protein16.png"), r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
-            gc.drawText("     "+label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-//          gc.drawText(label, ((Image)seriesArray[i].getData()).getImageData().width+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
             
+            double yValue = seriesArray[i].getYSeries()[xNearMouse];
+            String sYvalue = yValue == (int)yValue ? String.valueOf((int)yValue) : String.valueOf(yValue);
+            gc.drawText("     "+label+": "+sYvalue,inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+//          gc.drawText(label, ((Image)seriesArray[i].getData()).getImageData().width+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+
+            updateLayoutData();
             
         }
+        updateLayoutData();
     }
     
 }

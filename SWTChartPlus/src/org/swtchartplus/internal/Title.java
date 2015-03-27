@@ -59,7 +59,7 @@ public class Title implements ITitle, PaintListener {
     private ChartLayoutData layoutData;
 
     /** the default font size */
-    private static final int DEFAULT_FONT_SIZE = Constants.LARGE_FONT_SIZE;
+    private static final int DEFAULT_FONT_SIZE = Constants.MEDIUM_FONT_SIZE;
 
     /** the default color */
     private static final int DEFAULT_FOREGROUND = SWT.COLOR_BLUE;
@@ -79,8 +79,7 @@ public class Title implements ITitle, PaintListener {
         text = DEFAULT_TEXT;
         isVisible = true;
 
-        defaultFont = new Font(Display.getDefault(), "Tahoma",
-                DEFAULT_FONT_SIZE, SWT.BOLD);
+        defaultFont = new Font(Display.getDefault(), "Tahoma", DEFAULT_FONT_SIZE, SWT.BOLD);
         textLayout = new TextLayout(Display.getDefault());
         bounds = new Rectangle(0, 0, 0, 0);
         font = defaultFont;

@@ -234,8 +234,7 @@ public class AxisPage extends AbstractSelectorPage {
         for (int i = 0; i < axes.length; i++) {
             titleVisibleStates[i] = axes[i].getTitle().isVisible();
             titleTexts[i] = axes[i].getTitle().getText();
-            titleFontSizes[i] = axes[i].getTitle().getFont().getFontData()[0]
-                    .getHeight();
+            titleFontSizes[i] = axes[i].getTitle().getFont().getFontData()[0].getHeight();
             titleColors[i] = axes[i].getTitle().getForeground().getRGB();
             minRanges[i] = axes[i].getRange().lower;
             maxRanges[i] = axes[i].getRange().upper;
