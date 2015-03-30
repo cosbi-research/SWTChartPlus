@@ -75,7 +75,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
     /** the map between series id and cell bounds */
     private Map<String, Rectangle> cellBounds;
 
-    public static int xNearMouse = 0;
+    public static int xNearestMouse = 0;
     
     public static int numDecimals = 0;
     
@@ -100,17 +100,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
         setFont(defaultFont);
         setForeground(DEFAULT_FOREGROUND);
         setBackground(DEFAULT_BACKGROUND);
-        addPaintListener(this);
-        /*
-        addListener(SWT.MouseDown, new Listener() {
-
-            @Override
-            public void handleEvent(Event event) {
-            	System.out.println("Legend.Legend(...).new Listener() {...}.handleEvent()");
-            	TimeseriesChart.openPropertiesDialog();
-            }
-        });*/
-        
+        addPaintListener(this);        
         
     }
 
@@ -304,24 +294,24 @@ public class Legend extends Composite implements ILegend, PaintListener {
         }
         int width = 0;
         int height = 0;
-
         ISeries[] seriesArray = sort(chart.getSeriesSet().getSeries());
-
         Rectangle r = chart.getClientArea();
         Rectangle titleBounds = ((Title) chart.getTitle()).getBounds();
         int titleHeight = titleBounds.y + titleBounds.height;
         int cellHeight = Util.getExtentInGC(getFont(), "dummy").y;
-
+        if(PlotArea.highlight && seriesArray.length>0){
+        	String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
+	        sXnearestMouse = sXnearestMouse.replace(',', '.');
+	        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearestMouse+"  ").x;
+        }
         if (position == SWT.RIGHT || position == SWT.LEFT) {
             int columns = 1;
             int yPosition = MARGIN;
             int maxCellWidth = 0;
-
             for (ISeries series : seriesArray) {
                 if (!series.isVisibleInLegend()) {
                     continue;
                 }
-
                 String label = getLegendLabel(series);
                 int textWidth = Util.getExtentInGC(getFont(), label).x;
                 int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3;
@@ -342,34 +332,49 @@ public class Legend extends Composite implements ILegend, PaintListener {
         } else if (position == SWT.TOP || position == SWT.BOTTOM) {
             int rows = 1;
             int xPosition = 0;
-
             for (ISeries series : seriesArray) {
                 if (!series.isVisibleInLegend()) {
                     continue;
                 }
-
                 String label = getLegendLabel(series);
                 int textWidth = Util.getExtentInGC(getFont(), label).x;
                 int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3 + 20;
-                if(series.getYSeries().length>0){
-	                int d = (int) series.getYSeries()[xNearMouse];
-	                cellWidth +=Util.getExtentInGC(getFont(), String.valueOf(d)+"  ").x;
+                if(PlotArea.highlight && series.getYSeries().length>0){
+                	double d = series.getYSeries()[xNearestMouse];
+	                String sYvalue = d == (int)d ? String.valueOf((int)d) : String.valueOf(d);	                
+	                cellWidth +=Util.getExtentInGC(getFont(), sYvalue+"  ").x;
                 }
-                if (xPosition + cellWidth < r.width || xPosition == 0) {
-                    xPosition += cellWidth;
-                } else {
-                    rows++;
-                    xPosition = cellWidth;
+                if (PlotArea.highlight){
+                	if(inc + xPosition + cellWidth < r.width || xPosition == 0)
+                		xPosition += cellWidth;
+            		else {
+                        rows++;
+                        xPosition = cellWidth;
+                    }
+                }
+                else{
+                	if (xPosition + cellWidth < r.width || xPosition == 0) 
+                		xPosition += cellWidth;
+	                else {
+	                    rows++;
+	                    xPosition = cellWidth;
+	                }
                 }
                 cellBounds.put(series.getId(), new Rectangle(xPosition - cellWidth, 
                 		(cellHeight + MARGIN) * (rows - 1) + MARGIN,
                 		cellWidth, cellHeight));
-                width = Math.max(xPosition, width);
+                if(PlotArea.highlight && rows==1)
+                	width = Math.max(xPosition+inc, width);
+                else
+                	width = Math.max(xPosition, width);
             }
             height = (cellHeight + MARGIN) * rows + MARGIN;
-        }        
-        width+=inc+5;
+        }      
         setLayoutData(new ChartLayoutData(width, height));
+//        System.out.println("width: "+width+", height: "+height);
+//        System.out.println("r.width: "+r.width);
+//        System.out.println("inc: "+inc);
+        
     }
 
     /**
@@ -442,59 +447,59 @@ public class Legend extends Composite implements ILegend, PaintListener {
         if (!visible) {
             return;
         }
-
-        updateLayoutData();
+//        updateLayoutData();
         GC gc = e.gc;
         gc.setFont(getFont());
         ISeries[] seriesArray = chart.getSeriesSet().getSeries();
         if (seriesArray.length == 0) {
             return;
         }
-
         // draw frame
         gc.fillRectangle(0, 0, getSize().x - 1, getSize().y - 1);
         gc.setLineStyle(SWT.LINE_SOLID);
         gc.setLineWidth(1);
         gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
         gc.drawRectangle(0, 0, getSize().x - 1, getSize().y - 1);
-
         gc.setBackground(getBackground());
         gc.setForeground(getForeground());
-        String sXnearMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearMouse]);
-        sXnearMouse = sXnearMouse.replace(',', '.');
-        gc.drawText(" Hours: "+sXnearMouse, 2, 5, true);
-        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearMouse+"  ").x;
-        updateLayoutData();
+        if(PlotArea.highlight){
+	        String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
+	        sXnearestMouse = sXnearestMouse.replace(',', '.');
+	        gc.drawText(" Hours: "+sXnearestMouse, 2, 5, true);
+	        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearestMouse+"  ").x;
+        }
+        else
+        	inc = 0;
+        int incTmp = inc;
         // draw content
         for (int i = 0; i < seriesArray.length; i++) {
             if (!seriesArray[i].isVisibleInLegend()) {
                 continue;
-            }
-            
+            }            
             // draw plot line, symbol etc
             String id = seriesArray[i].getId();
             Rectangle r = cellBounds.get(id);
 //            System.out.println(r.width);
+            if(r.y>MARGIN)
+            	inc = 0;
             drawSymbol(gc, (Series) seriesArray[i], new Rectangle(inc+r.x + MARGIN, r.y + MARGIN, SYMBOL_WIDTH, r.height - MARGIN * 2));
-
             // draw label
-            String label = seriesArray[i].getDescription();// getLegendLabel(seriesArray[i]);
+            String label = seriesArray[i].getDescription();
             gc.setBackground(getBackground());
             gc.setForeground(getForeground());
             //gc.drawText(label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
             if(seriesArray[i].getIcon()!=null)
-            	gc.drawImage((Image)seriesArray[i].getIcon(), inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
-            //gc.drawImage(AppResources.swtGetImageResource("/img/protein16.png"), r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
-            
-            double yValue = seriesArray[i].getYSeries()[xNearMouse];
-            String sYvalue = yValue == (int)yValue ? String.valueOf((int)yValue) : String.valueOf(yValue);
-            gc.drawText("     "+label+": "+sYvalue,inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-//          gc.drawText(label, ((Image)seriesArray[i].getData()).getImageData().width+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-
-            updateLayoutData();
-            
+            	gc.drawImage((Image)seriesArray[i].getIcon(), inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);  
+            if(PlotArea.highlight){
+            	double yValue = seriesArray[i].getYSeries()[xNearestMouse];
+                String sYvalue = yValue == (int)yValue ? String.valueOf((int)yValue) : String.valueOf(yValue);
+                gc.drawText("     "+label+": "+sYvalue,inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+            }
+            else
+            	gc.drawText("     "+label,inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
         }
-        updateLayoutData();
+        inc = incTmp;
+//        updateLayoutData();
     }
     
 }

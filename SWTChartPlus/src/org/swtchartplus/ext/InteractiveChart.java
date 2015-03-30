@@ -62,7 +62,7 @@ public class InteractiveChart extends Chart implements PaintListener {
     /** true if the CTRL on Windows or MELA on Mac is pressed, otherwise false */
     public boolean ctrlPressed = false;
     
-    public boolean propertiesDialogOpen = false;
+    public static boolean propertiesDialogOpen = false;
 
 	private Cursor mouseDownEventCursor;
 
@@ -70,7 +70,7 @@ public class InteractiveChart extends Chart implements PaintListener {
 
 	private Cursor cursorDefault;
 	/** shows the position of the mouse in the graph */
-	private Label lblMousePosition;
+	public static Label lblMousePosition;
 	
 	public static ToolTip toolTip;
 	
@@ -265,7 +265,7 @@ public class InteractiveChart extends Chart implements PaintListener {
      *            the mouse move event
      */
     private void handleMouseMoveEvent(Event event) {
-		setVisibleToolTip(false);
+//		setVisibleToolTip(false);
         if(mousePressed){
         	// PAN
         	if(!ctrlPressed){
@@ -287,7 +287,7 @@ public class InteractiveChart extends Chart implements PaintListener {
 	        	}
 	        	// Pan if the log scale is enabled
 	        	if(yAxis.isLogScaleEnabled()){
-	        		setVisibleToolTip(false);
+//	        		setVisibleToolTip(false);
 	        		if(diff_y != 0){
 		        		double upper = getAxisSet().getYAxis(0).getRange().upper;
 		        		double lower = getAxisSet().getYAxis(0).getRange().lower;
@@ -319,19 +319,16 @@ public class InteractiveChart extends Chart implements PaintListener {
        if(series.length==0){
        		return;
        }       
-       double[] vTime;
-//       if(simFile)
-//       	vTime = vTime_;
-//       else
-       	vTime = series[0].getXSeries();
-       Legend.xNearMouse = vTime.length-1;
+       double[] vTime = series[0].getXSeries();
+       Legend.xNearestMouse = vTime.length-1;
        for (int i = 0; i < vTime.length-1; i++) {
 			if(Math.abs((float)(vTime[i]-xPosMouse))<Math.abs((float)(vTime[i+1]-xPosMouse))){
-				Legend.xNearMouse=i;
-				System.out.println("Point: vTime[i], i="+i);
+				Legend.xNearestMouse=i;
 				break;
 			}
 		}
+       updateLayout();
+       redraw();
     }
     
     /**
@@ -367,8 +364,7 @@ public class InteractiveChart extends Chart implements PaintListener {
     private void handleMouseUpEvent(Event event) {
     	mousePressed = false;
     	if(!ctrlPressed)
-    		getPlotArea().setCursor(mouseUpEventCursor);
-    	
+    		getPlotArea().setCursor(mouseUpEventCursor);    	
         if (event.button == 1 && System.currentTimeMillis() - clickedTime > 100) {
             for (IAxis axis : getAxisSet().getAxes()) {
                 Point range = null;
@@ -504,7 +500,7 @@ public class InteractiveChart extends Chart implements PaintListener {
      *            the orientation
      * @return the axes
      */
-    private IAxis[] getAxes(int orientation) {
+    public IAxis[] getAxes(int orientation) {
         IAxis[] axes;
         if (getOrientation() == orientation) {
             axes = getAxisSet().getXAxes();
