@@ -288,7 +288,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
      * Update the layout data.
      */
     public void updateLayoutData() {
-        if (!visible) {
+        if (!visible || chart.getSeriesSet().getSeries().length==0) {
             setLayoutData(new ChartLayoutData(0, 0));
             return;
         }
@@ -299,7 +299,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
         Rectangle titleBounds = ((Title) chart.getTitle()).getBounds();
         int titleHeight = titleBounds.y + titleBounds.height;
         int cellHeight = Util.getExtentInGC(getFont(), "dummy").y;
-        if(PlotArea.highlight && seriesArray.length>0){
+        if(PlotArea.highlight && seriesArray[0].getXSeries().length>xNearestMouse){
         	String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
 	        sXnearestMouse = sXnearestMouse.replace(',', '.');
 	        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearestMouse+"  ").x;
@@ -339,7 +339,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
                 String label = getLegendLabel(series);
                 int textWidth = Util.getExtentInGC(getFont(), label).x;
                 int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3 + 20;
-                if(PlotArea.highlight && series.getYSeries().length>0){
+                if(PlotArea.highlight && series.getYSeries().length>xNearestMouse){
                 	double d = series.getYSeries()[xNearestMouse];
 	                String sYvalue = d == (int)d ? String.valueOf((int)d) : String.valueOf(d);	                
 	                cellWidth +=Util.getExtentInGC(getFont(), sYvalue+"  ").x;

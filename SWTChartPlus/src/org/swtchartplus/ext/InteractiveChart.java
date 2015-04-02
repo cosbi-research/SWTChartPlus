@@ -6,9 +6,13 @@ import org.eclipse.jface.preference.PreferenceNode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -18,6 +22,7 @@ import org.eclipse.swt.widgets.ToolTip;
 import org.swtchartplus.Chart;
 import org.swtchartplus.IAxis;
 import org.swtchartplus.IAxis.Direction;
+import org.swtchartplus.ILineSeries;
 import org.swtchartplus.ISeries;
 import org.swtchartplus.Range;
 import org.swtchartplus.ext.internal.SelectionRectangle;
@@ -73,6 +78,10 @@ public class InteractiveChart extends Chart implements PaintListener {
 	public static Label lblMousePosition;
 	
 	public static ToolTip toolTip;
+	
+	public ILineSeries serieSelected = null;
+	
+	public Color colorSerieSelected;
 	
 	/** true if the platform is Mac, otherwise false */
 	public static boolean isMac = System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0;	//PApplet.platform == PConstants.MACOSX;
@@ -338,6 +347,10 @@ public class InteractiveChart extends Chart implements PaintListener {
      *            the mouse down event
      */
     private void handleMouseDownEvent(Event event) {
+    	if(serieSelected!=null){
+    		serieSelected.setLineColor(colorSerieSelected);
+        	serieSelected = null;
+    	}
     	if(event.button==1){
     		mousePressed = true;
         	pos_x_mouse = event.x;
@@ -382,12 +395,11 @@ public class InteractiveChart extends Chart implements PaintListener {
             }
         }
         selection.dispose();
-//        TabTimeSeries.highlight = false;
         redraw();  	
     }
-
+    
     public void setMouseUpEventCursor(Cursor curs) {
-    	mouseUpEventCursor  = curs;
+    	mouseUpEventCursor = curs;
     }
     
     /**
