@@ -613,7 +613,7 @@ public class InteractiveChart extends Chart implements PaintListener {
         legendNode.setPage(new LegendPage(this, resources, legendTitle));
         manager.addTo(chartTitle, legendNode);*/
 
-        final String xAxisTitle = "Hours";
+        final String xAxisTitle = getAxisSet().getXAxis(0).getTitle().getText();
         PreferenceNode xAxisNode = new PreferenceNode(xAxisTitle);
         xAxisNode.setPage(new AxisPage(this, resources, Direction.X, xAxisTitle));
         manager.addTo(chartTitle, xAxisNode);
@@ -629,7 +629,7 @@ public class InteractiveChart extends Chart implements PaintListener {
                 tickTitle));
         manager.addTo(chartTitle + "." + xAxisTitle, xTickNode);*/
         
-        final String yAxisTitle = "Number of molecules";
+        final String yAxisTitle = getAxisSet().getYAxis(0).getTitle().getText();
         PreferenceNode yAxisNode = new PreferenceNode(yAxisTitle);
         yAxisNode.setPage(new AxisPage(this, resources, Direction.Y, yAxisTitle));
         manager.addTo(chartTitle, yAxisNode);

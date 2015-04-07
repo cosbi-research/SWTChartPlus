@@ -125,15 +125,12 @@ public class SeriesSet implements ISeriesSet {
      */
     public void deleteSeries(String id) {
     	if (seriesMap.get(id) != null){
-        validateSeriesId(id);
-
-        seriesMap.get(id).dispose();
-        seriesMap.remove(id);
-
-        updateStackAndRiserData();
-
-        // legend will be hidden if this is the last series
-        chart.updateLayout();
+	        validateSeriesId(id);
+	        seriesMap.get(id).dispose();
+	        seriesMap.remove(id);
+	        updateStackAndRiserData();
+	        // legend will be hidden if this is the last series
+	        chart.updateLayout();
     	}
     }
     
