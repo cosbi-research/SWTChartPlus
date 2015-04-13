@@ -185,9 +185,11 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
                 int xCorner = chart.getAxisSet().getXAxis(0).getPixelCoordinate(serie.getXSeries()[Legend.xNearestMouse]);
                 int yCorner = chart.getAxisSet().getYAxis(0).getPixelCoordinate(serie.getYSeries()[Legend.xNearestMouse]);
                 PlotSymbolType typeSymbolHighlighted = ((ILineSeries)serie).getSymbolType();
-                if(typeSymbolHighlighted == PlotSymbolType.NONE)
-                	typeSymbolHighlighted = PlotSymbolType.CIRCLE;
                 int sizeSymbolHighlighted = ((ILineSeries)serie).getSymbolSize() + 2;
+                if(typeSymbolHighlighted == PlotSymbolType.NONE){
+                	typeSymbolHighlighted = PlotSymbolType.CIRCLE;
+                	sizeSymbolHighlighted = 4;
+                }
             	switch (typeSymbolHighlighted) {
 	                case CIRCLE:
 	                    gc.fillOval(xCorner - sizeSymbolHighlighted, yCorner - sizeSymbolHighlighted, sizeSymbolHighlighted * 2,

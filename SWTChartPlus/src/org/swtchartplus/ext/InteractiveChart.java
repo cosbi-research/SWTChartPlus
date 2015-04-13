@@ -9,10 +9,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -82,6 +79,8 @@ public class InteractiveChart extends Chart implements PaintListener {
 	public ILineSeries serieSelected = null;
 	
 	public Color colorSerieSelected;
+	
+	public boolean isSeriesSelected;
 	
 	/** true if the platform is Mac, otherwise false */
 	public static boolean isMac = System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0;	//PApplet.platform == PConstants.MACOSX;
@@ -347,9 +346,11 @@ public class InteractiveChart extends Chart implements PaintListener {
      *            the mouse down event
      */
     private void handleMouseDownEvent(Event event) {
-    	if(serieSelected!=null){
-    		serieSelected.setLineColor(colorSerieSelected);
-        	serieSelected = null;
+    	if(serieSelected != null){
+    		if(!isMac || event.button != 3 || !isSeriesSelected){
+    			serieSelected.setLineColor(colorSerieSelected);
+			    serieSelected = null;
+    		}
     	}
     	if(event.button==1){
     		mousePressed = true;
@@ -649,9 +650,7 @@ public class InteractiveChart extends Chart implements PaintListener {
 			
 			@Override
 			public ImageData getImageData() {
-				// TODO Auto-generated method stub
 				return AppResources.swtGetImageResource("/img/protein16.png").getImageData();
-				//return AppResources.swtGetImageResource("/img/roughmaterial16.png").getImageData();
 			}
 		};
         PreferenceNode plotNode = new PreferenceNode(seriesTitle, "", im, "");
@@ -699,7 +698,7 @@ public class InteractiveChart extends Chart implements PaintListener {
      * @param lblMousePosition the label
      */
 	public void setLblMousePosition(Label lblMousePosition) {
-		this.lblMousePosition = lblMousePosition;
+		InteractiveChart.lblMousePosition = lblMousePosition;
 	}
 	
 	/**
