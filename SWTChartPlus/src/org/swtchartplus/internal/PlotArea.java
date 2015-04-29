@@ -84,7 +84,8 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
         addListener(SWT.MouseExit, new Listener() {
         	@Override
             public void handleEvent(Event arg0) {
-        		InteractiveChart.lblMousePosition.setText("");
+        		if(InteractiveChart.lblMousePosition!=null)
+        			InteractiveChart.lblMousePosition.setText("");
         		highlight = false;
                 chart.redraw();
                 chart.updateLayout();

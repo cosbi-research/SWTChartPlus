@@ -302,7 +302,8 @@ public class Legend extends Composite implements ILegend, PaintListener {
         if(PlotArea.highlight && seriesArray[0].getXSeries().length>xNearestMouse){
         	String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
 	        sXnearestMouse = sXnearestMouse.replace(',', '.');
-	        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearestMouse+"  ").x;
+	        String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
+	        inc = Util.getExtentInGC(getFont(), "  "+xAxisTitle+": "+sXnearestMouse+"  ").x;
         }
         if (position == SWT.RIGHT || position == SWT.LEFT) {
             int columns = 1;
@@ -465,8 +466,9 @@ public class Legend extends Composite implements ILegend, PaintListener {
         if(PlotArea.highlight){
 	        String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
 	        sXnearestMouse = sXnearestMouse.replace(',', '.');
-	        gc.drawText(" Hours: "+sXnearestMouse, 2, 5, true);
-	        inc = Util.getExtentInGC(getFont(), " Hours: "+sXnearestMouse+"  ").x;
+	        String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
+	        gc.drawText(" "+xAxisTitle+": "+sXnearestMouse, 2, 5, true);
+	        inc = Util.getExtentInGC(getFont(), "  "+xAxisTitle+": "+sXnearestMouse+"  ").x;
         }
         else
         	inc = 0;
