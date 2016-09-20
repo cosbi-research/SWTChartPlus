@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!-- Configuration of the Ant build system to generate a Jar file -->
+<project name="SWTChartPlus JAR lib" default="Package">
+	
+	<!-- ===================== Property Definitions =========================== -->
+		
+	<property name="bin.dir" value="bin" />
+    <property name="dist.dir" value="dist" />
+	<property name="src.dir" value="SWTChartPlus" />
+    <property name="jar.name" value="swtchartplus.jar"/>
+
+	<!-- ===================== Property Definitions =========================== -->
+
+	<!-- =================================================================================
+			           EDIT THESE OPTIONS
+	    ================================================================================== -->
+		
+		<!-- The path to the folder where Eclipse is installed should be set-->
+		
+		<!-- <property name="eclipse.home" value="C:\Eclipse" /> -->
+	    
+    <!-- =================================================================================
+               / EDIT THESE OPTIONS
+    ================================================================================== -->
+	
+	<!-- Libraries on which the project depends -->
+	<path id="classpath.base">  
+		<fileset file="${eclipse.home}/plugins/org.eclipse.core.commands_*.jar"/>
+		<fileset file="${eclipse.home}/plugins/org.eclipse.jface_*.jar"/>
+	</path> 
+	
+	<!-- ===================== Tasks =========================== -->
+		
+	<target name="CheckClasspath">
+		<condition property="eclipse.home.set">
+			<isset property="eclipse.home" />
+		</condition>
+				
+		<fail unless="eclipse.home.set" message="Please, set the [eclipse.home] property" />
+	</target>
+		
+	<target name="Clean" depends="CheckClasspath">
+		<delete dir="${bin.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+	
+	<target name="Init" depends="Clean">
+		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+	
+	<target name="Compile" depends="Init">
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" includes="**/*.java">
+			<classpath refid="classpath.base" />
+		</javac>
+	</target>
+	
+	<target name="CreateJAR" depends="Compile">
+		<jar destfile="${dist.dir}/${jar.name}">
+		 	<fileset dir="${bin.dir}"/>
+		</jar>
+	</target>
+	
+	<!-- ======================================= MAIN TARGET =============================================== -->
+	
+	<!-- Main target -->
+	<target name="Package" depends="CreateJAR">
+		<echo>OK</echo>
+	</target>
+	
+</project>
