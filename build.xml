@@ -17,7 +17,7 @@
 		
 		<!-- The path to the folder where Eclipse is installed should be set-->
 		
-		<!-- <property name="eclipse.home" value="C:\Eclipse" /> -->
+		<!-- property name="eclipse.home" value="/opt/eclipse" / -->
 	    
     <!-- =================================================================================
                / EDIT THESE OPTIONS
@@ -27,6 +27,7 @@
 	<path id="classpath.base">  
 		<fileset file="${eclipse.home}/plugins/org.eclipse.core.commands_*.jar"/>
 		<fileset file="${eclipse.home}/plugins/org.eclipse.jface_*.jar"/>
+		<fileset file="${eclipse.home}/plugins/org.eclipse.swt*jar"/>
 	</path> 
 	
 	<!-- ===================== Tasks =========================== -->
