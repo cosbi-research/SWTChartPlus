@@ -16,11 +16,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.swtchartplus.Chart;
 import org.swtchartplus.IAxis;
+import org.swtchartplus.IAxis.Direction;
 import org.swtchartplus.ISeries;
+import org.swtchartplus.ISeries.SeriesType;
 import org.swtchartplus.ISeriesSet;
 import org.swtchartplus.Range;
-import org.swtchartplus.IAxis.Direction;
-import org.swtchartplus.ISeries.SeriesType;
 import org.swtchartplus.internal.axis.Axis;
 import org.swtchartplus.internal.compress.CompressConfig;
 import org.swtchartplus.internal.compress.ICompress;
@@ -43,207 +43,212 @@ public class SeriesSet implements ISeriesSet {
      *            the chart
      */
     public SeriesSet(Chart chart) {
-        this.chart = chart;
+	this.chart = chart;
 
-        seriesMap = new LinkedHashMap<String, Series>();
+	seriesMap = new LinkedHashMap<String, Series>();
     }
 
     /*
      * @see ISeriesSet#createSeries(ISeries.SeriesType, String)
      */
     public ISeries createSeries(SeriesType type, String id) {
-        if (id == null) {
-            SWT.error(SWT.ERROR_NULL_ARGUMENT);
-            return null; // to suppress warning...
-        }
+	return createSeries(type, id, true);
+    }
 
-        String identifier = id.trim();
+    public ISeries createSeries(SeriesType type, String id, boolean updateChart) {
+	if (id == null) {
+	    SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	    return null; // to suppress warning...
+	}
 
-        if ("".equals(identifier)) {
-            SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-        }
+	String identifier = id.trim();
 
-        Series series = null;
-        if (type == SeriesType.BAR) {
-            series = new BarSeries(chart, identifier);
-        } else if (type == SeriesType.LINE) {
-            series = new LineSeries(chart, identifier);
-        } else {
-            SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-            return null; // to suppress warning...
-        }
+	if ("".equals(identifier)) {
+	    SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+	}
 
-        Series oldSeries = seriesMap.get(identifier);
-        if (oldSeries != null) {
-            oldSeries.dispose();
-        }
+	Series series = null;
+	if (type == SeriesType.BAR) {
+	    series = new BarSeries(chart, identifier);
+	} else if (type == SeriesType.LINE) {
+	    series = new LineSeries(chart, identifier);
+	} else {
+	    SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+	    return null; // to suppress warning...
+	}
 
-        int[] xAxisIds = chart.getAxisSet().getXAxisIds();
-        int[] yAxisIds = chart.getAxisSet().getYAxisIds();
-        series.setXAxisId(xAxisIds[0]);
-        series.setYAxisId(yAxisIds[0]);
+	Series oldSeries = seriesMap.get(identifier);
+	if (oldSeries != null) {
+	    oldSeries.dispose();
+	}
 
-        seriesMap.put(identifier, series);
+	int[] xAxisIds = chart.getAxisSet().getXAxisIds();
+	int[] yAxisIds = chart.getAxisSet().getYAxisIds();
+	series.setXAxisId(xAxisIds[0]);
+	series.setYAxisId(yAxisIds[0]);
 
-        Axis axis = (Axis) chart.getAxisSet().getXAxis(xAxisIds[0]);
-        if (axis != null) {
-            updateStackAndRiserData();
-        }
+	seriesMap.put(identifier, series);
 
-        // legend will be shown if there is previously no series.
-        chart.updateLayout();
+	Axis axis = (Axis) chart.getAxisSet().getXAxis(xAxisIds[0]);
+	if (axis != null) {
+	    updateStackAndRiserData();
+	}
 
-        return series;
+	if (updateChart)
+	    // legend will be shown if there is previously no series.
+	    chart.updateLayout();
+
+	return series;
     }
 
     /*
      * @see ISeriesSet#getSeries(String)
      */
     public ISeries getSeries(String id) {
-        if (id == null) {
-            SWT.error(SWT.ERROR_NULL_ARGUMENT);
-        }
+	if (id == null) {
+	    SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	}
 
-        return seriesMap.get(id);
+	return seriesMap.get(id);
     }
 
     /*
      * @see ISeriesSet#getSeries()
      */
     public ISeries[] getSeries() {
-        Set<String> keys = seriesMap.keySet();
-        ISeries[] series = new ISeries[keys.size()];
-        int i = 0;
-        for (String key : keys) {
-            series[i++] = seriesMap.get(key);
-        }
-        return series;
+	Set<String> keys = seriesMap.keySet();
+	ISeries[] series = new ISeries[keys.size()];
+	int i = 0;
+	for (String key : keys) {
+	    series[i++] = seriesMap.get(key);
+	}
+	return series;
     }
 
     /*
      * @see ISeriesSet#deleteSeries(String)
      */
     public void deleteSeries(String id) {
-    	if (seriesMap.get(id) != null){
-	        validateSeriesId(id);
-	        seriesMap.get(id).dispose();
-	        seriesMap.remove(id);
-	        updateStackAndRiserData();
-	        // legend will be hidden if this is the last series
-	        chart.updateLayout();
-    	}
+	if (seriesMap.get(id) != null) {
+	    validateSeriesId(id);
+	    seriesMap.get(id).dispose();
+	    seriesMap.remove(id);
+	    updateStackAndRiserData();
+	    // legend will be hidden if this is the last series
+	    chart.updateLayout();
+	}
     }
-    
+
     public void deleteAllSeries() {
-    	ArrayList<String> v = new ArrayList<String>();
-    	for (String id: seriesMap.keySet()) {
-    		v.add(id);
-         }
-    	for (int i = 0; i < v.size(); i++) {
-    		String id = v.get(i);
-    		deleteSeries(id);
-    		v.remove(i);
-    		i--;
-		}
+	ArrayList<String> v = new ArrayList<String>();
+	for (String id : seriesMap.keySet()) {
+	    v.add(id);
+	}
+	for (int i = 0; i < v.size(); i++) {
+	    String id = v.get(i);
+	    deleteSeries(id);
+	    v.remove(i);
+	    i--;
+	}
     }
 
     /*
      * @see ISeriesSet#bringForward(String)
      */
     public void bringForward(String id) {
-        validateSeriesId(id);
+	validateSeriesId(id);
 
-        String seriesId = null;
-        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
-        for (Entry<String, Series> entry : seriesMap.entrySet()) {
+	String seriesId = null;
+	LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
+	for (Entry<String, Series> entry : seriesMap.entrySet()) {
 
-            if (entry.getKey().equals(id)) {
-                seriesId = id;
-                continue;
-            }
+	    if (entry.getKey().equals(id)) {
+		seriesId = id;
+		continue;
+	    }
 
-            newSeriesMap.put(entry.getKey(), entry.getValue());
+	    newSeriesMap.put(entry.getKey(), entry.getValue());
 
-            if (seriesId != null) {
-                newSeriesMap.put(seriesId, seriesMap.get(seriesId));
-                seriesId = null;
-            }
-        }
-        if (seriesId != null) {
-            newSeriesMap.put(seriesId, seriesMap.get(seriesId));
-        }
-        seriesMap = newSeriesMap;
+	    if (seriesId != null) {
+		newSeriesMap.put(seriesId, seriesMap.get(seriesId));
+		seriesId = null;
+	    }
+	}
+	if (seriesId != null) {
+	    newSeriesMap.put(seriesId, seriesMap.get(seriesId));
+	}
+	seriesMap = newSeriesMap;
 
-        updateStackAndRiserData();
-        chart.updateLayout();
+	updateStackAndRiserData();
+	chart.updateLayout();
     }
 
     /*
      * @see ISeriesSet#bringToFront(String)
      */
     public void bringToFront(String id) {
-        validateSeriesId(id);
+	validateSeriesId(id);
 
-        Series series = seriesMap.get(id);
-        seriesMap.remove(id);
-        seriesMap.put(series.getId(), series);
+	Series series = seriesMap.get(id);
+	seriesMap.remove(id);
+	seriesMap.put(series.getId(), series);
 
-        updateStackAndRiserData();
-        chart.updateLayout();
+	updateStackAndRiserData();
+	chart.updateLayout();
     }
 
     /*
      * @see ISeriesSet#sendBackward(String)
      */
     public void sendBackward(String id) {
-        validateSeriesId(id);
+	validateSeriesId(id);
 
-        String seriesId = null;
-        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
-        for (Entry<String, Series> entry : seriesMap.entrySet()) {
+	String seriesId = null;
+	LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
+	for (Entry<String, Series> entry : seriesMap.entrySet()) {
 
-            if (!entry.getKey().equals(id) || seriesId == null) {
-                newSeriesMap.put(entry.getKey(), entry.getValue());
-                seriesId = entry.getKey();
-                continue;
-            }
+	    if (!entry.getKey().equals(id) || seriesId == null) {
+		newSeriesMap.put(entry.getKey(), entry.getValue());
+		seriesId = entry.getKey();
+		continue;
+	    }
 
-            newSeriesMap.remove(seriesId);
-            newSeriesMap.put(entry.getKey(), entry.getValue());
-            newSeriesMap.put(seriesId, seriesMap.get(seriesId));
-        }
-        seriesMap = newSeriesMap;
+	    newSeriesMap.remove(seriesId);
+	    newSeriesMap.put(entry.getKey(), entry.getValue());
+	    newSeriesMap.put(seriesId, seriesMap.get(seriesId));
+	}
+	seriesMap = newSeriesMap;
 
-        updateStackAndRiserData();
-        chart.updateLayout();
+	updateStackAndRiserData();
+	chart.updateLayout();
     }
 
     /*
      * @see ISeriesSet#sendToBack(String)
      */
     public void sendToBack(String id) {
-        validateSeriesId(id);
+	validateSeriesId(id);
 
-        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
-        newSeriesMap.put(id, seriesMap.get(id));
-        for (Entry<String, Series> entry : seriesMap.entrySet()) {
-            if (!entry.getKey().equals(id)) {
-                newSeriesMap.put(entry.getKey(), entry.getValue());
-            }
-        }
-        seriesMap = newSeriesMap;
+	LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
+	newSeriesMap.put(id, seriesMap.get(id));
+	for (Entry<String, Series> entry : seriesMap.entrySet()) {
+	    if (!entry.getKey().equals(id)) {
+		newSeriesMap.put(entry.getKey(), entry.getValue());
+	    }
+	}
+	seriesMap = newSeriesMap;
 
-        updateStackAndRiserData();
-        chart.updateLayout();
+	updateStackAndRiserData();
+	chart.updateLayout();
     }
 
     /**
      * Disposes the series.
      */
     public void dispose() {
-        for (Entry<String, Series> entry : seriesMap.entrySet()) {
-            entry.getValue().dispose();
-        }
+	for (Entry<String, Series> entry : seriesMap.entrySet()) {
+	    entry.getValue().dispose();
+	}
     }
 
     /**
@@ -253,70 +258,70 @@ public class SeriesSet implements ISeriesSet {
      *            the series id.
      */
     private void validateSeriesId(String id) {
-        if (id == null) {
-            SWT.error(SWT.ERROR_NULL_ARGUMENT);
-        }
-        if (seriesMap.get(id) == null) {
-            throw new IllegalArgumentException("Given series id doesn't exist");
-        }
+	if (id == null) {
+	    SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	}
+	if (seriesMap.get(id) == null) {
+	    throw new IllegalArgumentException("Given series id doesn't exist");
+	}
     }
 
     /**
      * Compresses all series data.
      */
     public void compressAllSeries() {
-        if (!chart.isCompressEnabled()) {
-            return;
-        }
+	if (!chart.isCompressEnabled()) {
+	    return;
+	}
 
-        CompressConfig config = new CompressConfig();
+	CompressConfig config = new CompressConfig();
 
-        final int PRECISION = 2;
-        Point p = chart.getPlotArea().getSize();
-        int width = p.x * PRECISION;
-        int height = p.y * PRECISION;
-        config.setSizeInPixel(width, height);
+	final int PRECISION = 2;
+	Point p = chart.getPlotArea().getSize();
+	int width = p.x * PRECISION;
+	int height = p.y * PRECISION;
+	config.setSizeInPixel(width, height);
 
-        for (ISeries series : getSeries()) {
-            int xAxisId = series.getXAxisId();
-            int yAxisId = series.getYAxisId();
+	for (ISeries series : getSeries()) {
+	    int xAxisId = series.getXAxisId();
+	    int yAxisId = series.getYAxisId();
 
-            IAxis xAxis = chart.getAxisSet().getXAxis(xAxisId);
-            IAxis yAxis = chart.getAxisSet().getYAxis(yAxisId);
-            if (xAxis == null || yAxis == null) {
-                continue;
-            }
-            Range xRange = xAxis.getRange();
-            Range yRange = yAxis.getRange();
+	    IAxis xAxis = chart.getAxisSet().getXAxis(xAxisId);
+	    IAxis yAxis = chart.getAxisSet().getYAxis(yAxisId);
+	    if (xAxis == null || yAxis == null) {
+		continue;
+	    }
+	    Range xRange = xAxis.getRange();
+	    Range yRange = yAxis.getRange();
 
-            if (xRange == null || yRange == null) {
-                continue;
-            }
+	    if (xRange == null || yRange == null) {
+		continue;
+	    }
 
-            double xMin = xRange.lower;
-            double xMax = xRange.upper;
-            double yMin = yRange.lower;
-            double yMax = yRange.upper;
+	    double xMin = xRange.lower;
+	    double xMax = xRange.upper;
+	    double yMin = yRange.lower;
+	    double yMax = yRange.upper;
 
-            config.setXLogScale(xAxis.isLogScaleEnabled());
-            config.setYLogScale(yAxis.isLogScaleEnabled());
+	    config.setXLogScale(xAxis.isLogScaleEnabled());
+	    config.setYLogScale(yAxis.isLogScaleEnabled());
 
-            double lower = xMin - (xMax - xMin) * 0.015;
-            double upper = xMax + (xMax - xMin) * 0.015;
-            if (xAxis.isLogScaleEnabled()) {
-                lower = ((Series) series).getXRange().lower;
-            }
-            config.setXRange(lower, upper);
-            lower = yMin - (yMax - yMin) * 0.015;
-            upper = yMax + (yMax - yMin) * 0.015;
-            if (yAxis.isLogScaleEnabled()) {
-                lower = ((Series) series).getYRange().lower;
-            }
-            config.setYRange(lower, upper);
+	    double lower = xMin - (xMax - xMin) * 0.015;
+	    double upper = xMax + (xMax - xMin) * 0.015;
+	    if (xAxis.isLogScaleEnabled()) {
+		lower = ((Series) series).getXRange().lower;
+	    }
+	    config.setXRange(lower, upper);
+	    lower = yMin - (yMax - yMin) * 0.015;
+	    upper = yMax + (yMax - yMin) * 0.015;
+	    if (yAxis.isLogScaleEnabled()) {
+		lower = ((Series) series).getYRange().lower;
+	    }
+	    config.setYRange(lower, upper);
 
-            ICompress compressor = ((Series) series).getCompressor();
-            compressor.compress(config);
-        }
+	    ICompress compressor = ((Series) series).getCompressor();
+	    compressor.compress(config);
+	}
     }
 
     /**
@@ -330,45 +335,44 @@ public class SeriesSet implements ISeriesSet {
      *            the axis
      */
     public void updateCompressor(Axis axis) {
-        for (ISeries series : getSeries()) {
-            int axisId = (axis.getDirection() == Direction.X) ? series
-                    .getXAxisId() : series.getYAxisId();
-            if (axisId != axis.getId()) {
-                continue;
-            }
+	for (ISeries series : getSeries()) {
+	    int axisId = (axis.getDirection() == Direction.X) ? series.getXAxisId() : series.getYAxisId();
+	    if (axisId != axis.getId()) {
+		continue;
+	    }
 
-            ICompress compressor = ((Series) series).getCompressor();
-            if (axis.isValidCategoryAxis()) {
-                String[] categorySeries = axis.getCategorySeries();
-                if (categorySeries == null) {
-                    continue;
-                }
-                double[] xSeries = new double[categorySeries.length];
-                for (int i = 0; i < xSeries.length; i++) {
-                    xSeries[i] = i;
-                }
-                compressor.setXSeries(xSeries);
-            } else if (((Series) series).getXSeries() != null) {
-                compressor.setXSeries(((Series) series).getXSeries());
-            }
-        }
-        compressAllSeries();
+	    ICompress compressor = ((Series) series).getCompressor();
+	    if (axis.isValidCategoryAxis()) {
+		String[] categorySeries = axis.getCategorySeries();
+		if (categorySeries == null) {
+		    continue;
+		}
+		double[] xSeries = new double[categorySeries.length];
+		for (int i = 0; i < xSeries.length; i++) {
+		    xSeries[i] = i;
+		}
+		compressor.setXSeries(xSeries);
+	    } else if (((Series) series).getXSeries() != null) {
+		compressor.setXSeries(((Series) series).getXSeries());
+	    }
+	}
+	compressAllSeries();
     }
 
     /**
      * Updates the stack and riser data.
      */
     public void updateStackAndRiserData() {
-        if (chart.isUpdateSuspended()) {
-            return;
-        }
+	if (chart.isUpdateSuspended()) {
+	    return;
+	}
 
-        for (IAxis xAxis : chart.getAxisSet().getXAxes()) {
-            ((Axis) xAxis).setNumRisers(0);
-            for (IAxis yAxis : chart.getAxisSet().getYAxes()) {
-                updateStackAndRiserData(xAxis, yAxis);
-            }
-        }
+	for (IAxis xAxis : chart.getAxisSet().getXAxes()) {
+	    ((Axis) xAxis).setNumRisers(0);
+	    for (IAxis yAxis : chart.getAxisSet().getYAxes()) {
+		updateStackAndRiserData(xAxis, yAxis);
+	    }
+	}
     }
 
     /**
@@ -381,51 +385,45 @@ public class SeriesSet implements ISeriesSet {
      */
     private void updateStackAndRiserData(IAxis xAxis, IAxis yAxis) {
 
-        int riserCnt = 0;
-        int stackRiserPosition = -1;
-        double[] stackBarSeries = null;
-        double[] stackLineSeries = null;
+	int riserCnt = 0;
+	int stackRiserPosition = -1;
+	double[] stackBarSeries = null;
+	double[] stackLineSeries = null;
 
-        if (((Axis) xAxis).isValidCategoryAxis()) {
-            String[] categorySeries = xAxis.getCategorySeries();
-            if (categorySeries != null) {
-                int size = categorySeries.length;
-                stackBarSeries = new double[size];
-                stackLineSeries = new double[size];
-            }
-        }
+	if (((Axis) xAxis).isValidCategoryAxis()) {
+	    String[] categorySeries = xAxis.getCategorySeries();
+	    if (categorySeries != null) {
+		int size = categorySeries.length;
+		stackBarSeries = new double[size];
+		stackLineSeries = new double[size];
+	    }
+	}
 
-        for (ISeries series : getSeries()) {
-            if (series.getXAxisId() != xAxis.getId()
-                    || series.getYAxisId() != yAxis.getId()
-                    || !series.isVisible()) {
-                continue;
-            }
+	for (ISeries series : getSeries()) {
+	    if (series.getXAxisId() != xAxis.getId() || series.getYAxisId() != yAxis.getId() || !series.isVisible()) {
+		continue;
+	    }
 
-            if (series.isStackEnabled()
-                    && !chart.getAxisSet().getYAxis(series.getYAxisId())
-                            .isLogScaleEnabled()
-                    && ((Axis) xAxis).isValidCategoryAxis()) {
-                if (series.getType() == SeriesType.BAR) {
-                    if (stackRiserPosition == -1) {
-                        stackRiserPosition = riserCnt;
-                        riserCnt++;
-                    }
-                    ((BarSeries) series).setRiserIndex(((Axis) xAxis)
-                            .getNumRisers() + stackRiserPosition);
-                    setStackSeries(stackBarSeries, series);
-                } else if (series.getType() == SeriesType.LINE) {
-                    setStackSeries(stackLineSeries, series);
-                }
-            } else {
-                if (series.getType() == SeriesType.BAR) {
-                    ((BarSeries) series).setRiserIndex(((Axis) xAxis)
-                            .getNumRisers() + riserCnt++);
-                }
-            }
-        }
+	    if (series.isStackEnabled() && !chart.getAxisSet().getYAxis(series.getYAxisId()).isLogScaleEnabled()
+		    && ((Axis) xAxis).isValidCategoryAxis()) {
+		if (series.getType() == SeriesType.BAR) {
+		    if (stackRiserPosition == -1) {
+			stackRiserPosition = riserCnt;
+			riserCnt++;
+		    }
+		    ((BarSeries) series).setRiserIndex(((Axis) xAxis).getNumRisers() + stackRiserPosition);
+		    setStackSeries(stackBarSeries, series);
+		} else if (series.getType() == SeriesType.LINE) {
+		    setStackSeries(stackLineSeries, series);
+		}
+	    } else {
+		if (series.getType() == SeriesType.BAR) {
+		    ((BarSeries) series).setRiserIndex(((Axis) xAxis).getNumRisers() + riserCnt++);
+		}
+	    }
+	}
 
-        ((Axis) xAxis).setNumRisers(((Axis) xAxis).getNumRisers() + riserCnt);
+	((Axis) xAxis).setNumRisers(((Axis) xAxis).getNumRisers() + riserCnt);
     }
 
     /**
@@ -437,21 +435,19 @@ public class SeriesSet implements ISeriesSet {
      *            the series
      */
     private static void setStackSeries(double[] stackSeries, ISeries series) {
-        double[] ySeries = series.getYSeries();
-        if (ySeries == null || stackSeries == null) {
-            return;
-        }
+	double[] ySeries = series.getYSeries();
+	if (ySeries == null || stackSeries == null) {
+	    return;
+	}
 
-        for (int i = 0; i < stackSeries.length; i++) {
-            if (i >= ySeries.length) {
-                break;
-            }
-            stackSeries[i] = BigDecimal.valueOf(stackSeries[i])
-                    .add(BigDecimal.valueOf(ySeries[i])).doubleValue();
-        }
-        double[] copiedStackSeries = new double[stackSeries.length];
-        System.arraycopy(stackSeries, 0, copiedStackSeries, 0,
-                stackSeries.length);
-        ((Series) series).setStackSeries(copiedStackSeries);
+	for (int i = 0; i < stackSeries.length; i++) {
+	    if (i >= ySeries.length) {
+		break;
+	    }
+	    stackSeries[i] = BigDecimal.valueOf(stackSeries[i]).add(BigDecimal.valueOf(ySeries[i])).doubleValue();
+	}
+	double[] copiedStackSeries = new double[stackSeries.length];
+	System.arraycopy(stackSeries, 0, copiedStackSeries, 0, stackSeries.length);
+	((Series) series).setStackSeries(copiedStackSeries);
     }
 }

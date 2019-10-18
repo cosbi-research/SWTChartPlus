@@ -56,12 +56,10 @@ public class Legend extends Composite implements ILegend, PaintListener {
     private static final int LINE_WIDTH = 2;
 
     /** the default foreground */
-    private static final Color DEFAULT_FOREGROUND = Display.getDefault()
-            .getSystemColor(SWT.COLOR_BLACK);
+    private static final Color DEFAULT_FOREGROUND = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
 
     /** the default background */
-    private static final Color DEFAULT_BACKGROUND = Display.getDefault()
-            .getSystemColor(SWT.COLOR_WHITE);
+    private static final Color DEFAULT_BACKGROUND = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
 
     /** the default font */
     private Font defaultFont;
@@ -72,14 +70,18 @@ public class Legend extends Composite implements ILegend, PaintListener {
     /** the default position */
     private static final int DEFAULT_POSITION = SWT.RIGHT;
 
+    private static final int MAX_HEIGHT = 200;
+
     /** the map between series id and cell bounds */
     private Map<String, Rectangle> cellBounds;
 
     public static int xNearestMouse = 0;
-    
+
     public static int numDecimals = 0;
-    
+
     int inc = 0;
+
+    private int stopDrawingAtSeries;
 
     /**
      * Constructor.
@@ -90,18 +92,19 @@ public class Legend extends Composite implements ILegend, PaintListener {
      *            the style
      */
     public Legend(Chart chart, int style) {
-        super(chart, style | SWT.DOUBLE_BUFFERED);
-        this.chart = chart;
+	super(chart, style | SWT.DOUBLE_BUFFERED);
+	this.chart = chart;
 
-        visible = true;
-        position = DEFAULT_POSITION;
-        cellBounds = new HashMap<String, Rectangle>();
-        defaultFont = new Font(Display.getDefault(), "Tahoma", DEFAULT_FONT_SIZE, SWT.NORMAL);
-        setFont(defaultFont);
-        setForeground(DEFAULT_FOREGROUND);
-        setBackground(DEFAULT_BACKGROUND);
-        addPaintListener(this);        
-        
+	stopDrawingAtSeries = Integer.MAX_VALUE;
+	visible = true;
+	position = DEFAULT_POSITION;
+	cellBounds = new HashMap<String, Rectangle>();
+	defaultFont = new Font(Display.getDefault(), "Tahoma", DEFAULT_FONT_SIZE, SWT.NORMAL);
+	setFont(defaultFont);
+	setForeground(DEFAULT_FOREGROUND);
+	setBackground(DEFAULT_BACKGROUND);
+	addPaintListener(this);
+
     }
 
     /*
@@ -109,12 +112,12 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     @Override
     public void setVisible(boolean visible) {
-        if (this.visible == visible) {
-            return;
-        }
+	if (this.visible == visible) {
+	    return;
+	}
 
-        this.visible = visible;
-        chart.updateLayout();
+	this.visible = visible;
+	chart.updateLayout();
     }
 
     /*
@@ -122,7 +125,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     @Override
     public boolean isVisible() {
-        return visible;
+	return visible;
     }
 
     /*
@@ -130,12 +133,12 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     @Override
     public void setFont(Font font) {
-        if (font == null) {
-            super.setFont(defaultFont);
-        } else {
-            super.setFont(font);
-        }
-        chart.updateLayout();
+	if (font == null) {
+	    super.setFont(defaultFont);
+	} else {
+	    super.setFont(font);
+	}
+	chart.updateLayout();
     }
 
     /*
@@ -143,11 +146,11 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     @Override
     public void setForeground(Color color) {
-        if (color == null) {
-            super.setForeground(DEFAULT_FOREGROUND);
-        } else {
-            super.setForeground(color);
-        }
+	if (color == null) {
+	    super.setForeground(DEFAULT_FOREGROUND);
+	} else {
+	    super.setForeground(color);
+	}
     }
 
     /*
@@ -155,38 +158,37 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     @Override
     public void setBackground(Color color) {
-        if (color == null) {
-            super.setBackground(DEFAULT_BACKGROUND);
-        } else {
-            super.setBackground(color);
-        }
+	if (color == null) {
+	    super.setBackground(DEFAULT_BACKGROUND);
+	} else {
+	    super.setBackground(color);
+	}
     }
 
     /*
      * @see ILegend#getPosition()
      */
     public int getPosition() {
-        return position;
+	return position;
     }
 
     /*
      * @see ILegend#setPosition(int)
      */
     public void setPosition(int value) {
-        if (value == SWT.LEFT || value == SWT.RIGHT || value == SWT.TOP
-                || value == SWT.BOTTOM) {
-            position = value;
-        } else {
-            position = DEFAULT_POSITION;
-        }
-        chart.updateLayout();
+	if (value == SWT.LEFT || value == SWT.RIGHT || value == SWT.TOP || value == SWT.BOTTOM) {
+	    position = value;
+	} else {
+	    position = DEFAULT_POSITION;
+	}
+	chart.updateLayout();
     }
 
     /*
      * @see ILegend#getBounds(String)
      */
     public Rectangle getBounds(String seriesId) {
-        return cellBounds.get(seriesId);
+	return cellBounds.get(seriesId);
     }
 
     /*
@@ -194,10 +196,10 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     @Override
     public void dispose() {
-        super.dispose();
-        if (!defaultFont.isDisposed()) {
-            defaultFont.dispose();
-        }
+	super.dispose();
+	if (!defaultFont.isDisposed()) {
+	    defaultFont.dispose();
+	}
     }
 
     /**
@@ -215,29 +217,27 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     private ISeries[] sort(ISeries[] seriesArray) {
 
-        // create a map between axis id and series list
-        Map<Integer, List<ISeries>> map = new HashMap<Integer, List<ISeries>>();
-        for (ISeries series : seriesArray) {
-            int axisId = series.getXAxisId();
-            List<ISeries> list = map.get(axisId);
-            if (list == null) {
-                list = new ArrayList<ISeries>();
-            }
-            list.add(series);
-            map.put(axisId, list);
-        }
+	// create a map between axis id and series list
+	Map<Integer, List<ISeries>> map = new HashMap<Integer, List<ISeries>>();
+	for (ISeries series : seriesArray) {
+	    int axisId = series.getXAxisId();
+	    List<ISeries> list = map.get(axisId);
+	    if (list == null) {
+		list = new ArrayList<ISeries>();
+	    }
+	    list.add(series);
+	    map.put(axisId, list);
+	}
 
-        // sort an each series list
-        List<ISeries> sortedArray = new ArrayList<ISeries>();
-        boolean isVertical = chart.getOrientation() == SWT.VERTICAL;
-        for (Entry<Integer, List<ISeries>> entry : map.entrySet()) {
-            boolean isCategoryEnabled = chart.getAxisSet()
-                    .getXAxis(entry.getKey()).isCategoryEnabled();
-            sortedArray.addAll(sort(entry.getValue(), isCategoryEnabled,
-                    isVertical));
-        }
+	// sort an each series list
+	List<ISeries> sortedArray = new ArrayList<ISeries>();
+	boolean isVertical = chart.getOrientation() == SWT.VERTICAL;
+	for (Entry<Integer, List<ISeries>> entry : map.entrySet()) {
+	    boolean isCategoryEnabled = chart.getAxisSet().getXAxis(entry.getKey()).isCategoryEnabled();
+	    sortedArray.addAll(sort(entry.getValue(), isCategoryEnabled, isVertical));
+	}
 
-        return sortedArray.toArray(new ISeries[sortedArray.size()]);
+	return sortedArray.toArray(new ISeries[sortedArray.size()]);
     }
 
     /**
@@ -257,125 +257,133 @@ public class Legend extends Composite implements ILegend, PaintListener {
      *            true in the case of vertical orientation
      * @return the sorted series array
      */
-    private static List<ISeries> sort(List<ISeries> seriesList,
-            boolean isCategoryEnabled, boolean isVertical) {
-        List<ISeries> sortedArray = new ArrayList<ISeries>();
+    private static List<ISeries> sort(List<ISeries> seriesList, boolean isCategoryEnabled, boolean isVertical) {
+	List<ISeries> sortedArray = new ArrayList<ISeries>();
 
-        // gather the stacked series reversing the order of stack series
-        int insertIndex = -1;
-        for (int i = 0; i < seriesList.size(); i++) {
-            if (isCategoryEnabled
-                    && ((Series) seriesList.get(i)).isValidStackSeries()) {
-                if (insertIndex == -1) {
-                    insertIndex = i;
-                } else {
-                    sortedArray.add(insertIndex, seriesList.get(i));
-                    continue;
-                }
-            }
-            sortedArray.add(seriesList.get(i));
-        }
+	// gather the stacked series reversing the order of stack series
+	int insertIndex = -1;
+	for (int i = 0; i < seriesList.size(); i++) {
+	    if (isCategoryEnabled && ((Series) seriesList.get(i)).isValidStackSeries()) {
+		if (insertIndex == -1) {
+		    insertIndex = i;
+		} else {
+		    sortedArray.add(insertIndex, seriesList.get(i));
+		    continue;
+		}
+	    }
+	    sortedArray.add(seriesList.get(i));
+	}
 
-        // reverse the order of whole series in the case of vertical orientation
-        if (isVertical) {
-            Collections.reverse(sortedArray);
-        }
+	// reverse the order of whole series in the case of vertical orientation
+	if (isVertical) {
+	    Collections.reverse(sortedArray);
+	}
 
-        return sortedArray;
+	return sortedArray;
     }
 
     /**
      * Update the layout data.
      */
     public void updateLayoutData() {
-        if (!visible || chart.getSeriesSet().getSeries().length==0) {
-            setLayoutData(new ChartLayoutData(0, 0));
-            return;
-        }
-        int width = 0;
-        int height = 0;
-        ISeries[] seriesArray = sort(chart.getSeriesSet().getSeries());
-        Rectangle r = chart.getClientArea();
-        Rectangle titleBounds = ((Title) chart.getTitle()).getBounds();
-        int titleHeight = titleBounds.y + titleBounds.height;
-        int cellHeight = Util.getExtentInGC(getFont(), "dummy").y;
-        if(PlotArea.highlight && seriesArray[0].getXSeries().length>xNearestMouse){
-        	String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
-	        sXnearestMouse = sXnearestMouse.replace(',', '.');
-	        String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
-	        inc = Util.getExtentInGC(getFont(), "  "+xAxisTitle+": "+sXnearestMouse+"  ").x;
-        }
-        if (position == SWT.RIGHT || position == SWT.LEFT) {
-            int columns = 1;
-            int yPosition = MARGIN;
-            int maxCellWidth = 0;
-            for (ISeries series : seriesArray) {
-                if (!series.isVisibleInLegend()) {
-                    continue;
-                }
-                String label = getLegendLabel(series);
-                int textWidth = Util.getExtentInGC(getFont(), label).x;
-                int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3;
-                maxCellWidth = Math.max(maxCellWidth, cellWidth);
-                if (yPosition + cellHeight < r.height - titleHeight - MARGIN
-                        || yPosition == MARGIN) {
-                    yPosition += cellHeight + MARGIN;
-                } else {
-                    columns++;
-                    yPosition = cellHeight + MARGIN * 2;
-                }
-                cellBounds.put(series.getId(), new Rectangle(maxCellWidth
-                        * (columns - 1), yPosition - cellHeight - MARGIN,
-                        cellWidth, cellHeight));
-                height = Math.max(yPosition, height);
-            }
-            width = maxCellWidth * columns;
-        } else if (position == SWT.TOP || position == SWT.BOTTOM) {
-            int rows = 1;
-            int xPosition = 0;
-            for (ISeries series : seriesArray) {
-                if (!series.isVisibleInLegend()) {
-                    continue;
-                }
-                String label = getLegendLabel(series);
-                int textWidth = Util.getExtentInGC(getFont(), label).x;
-                int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3 + 20;
-                if(PlotArea.highlight && series.getYSeries().length>xNearestMouse){
-                	double d = series.getYSeries()[xNearestMouse];
-	                String sYvalue = d == (int)d ? String.valueOf((int)d) : String.valueOf(d);	                
-	                cellWidth +=Util.getExtentInGC(getFont(), sYvalue+"  ").x;
-                }
-                if (PlotArea.highlight){
-                	if(inc + xPosition + cellWidth < r.width || xPosition == 0)
-                		xPosition += cellWidth;
-            		else {
-                        rows++;
-                        xPosition = cellWidth;
-                    }
-                }
-                else{
-                	if (xPosition + cellWidth < r.width || xPosition == 0) 
-                		xPosition += cellWidth;
-	                else {
-	                    rows++;
-	                    xPosition = cellWidth;
-	                }
-                }
-                cellBounds.put(series.getId(), new Rectangle(xPosition - cellWidth, 
-                		(cellHeight + MARGIN) * (rows - 1) + MARGIN,
-                		cellWidth, cellHeight));
-                if(PlotArea.highlight && rows==1)
-                	width = Math.max(xPosition+inc, width);
-                else
-                	width = Math.max(xPosition, width);
-            }
-            height = (cellHeight + MARGIN) * rows + MARGIN;
-        }      
-        setLayoutData(new ChartLayoutData(width, height));
-//        System.out.println("width: "+width+", height: "+height);
-//        System.out.println("r.width: "+r.width);
-//        System.out.println("inc: "+inc);
-        
+	if (!visible || chart.getSeriesSet().getSeries().length == 0) {
+	    setLayoutData(new ChartLayoutData(0, 0));
+	    return;
+	}
+	int width = 0;
+	int height = 0;
+	ISeries[] seriesArray = sort(chart.getSeriesSet().getSeries());
+	Rectangle r = chart.getClientArea();
+	Rectangle titleBounds = ((Title) chart.getTitle()).getBounds();
+	int titleHeight = titleBounds.y + titleBounds.height;
+	int cellHeight = Util.getExtentInGC(getFont(), "dummy").y;
+	if (PlotArea.highlight && seriesArray[0].getXSeries().length > xNearestMouse) {
+	    String sXnearestMouse = String.format("%." + numDecimals + "f", seriesArray[0].getXSeries()[xNearestMouse]);
+	    sXnearestMouse = sXnearestMouse.replace(',', '.');
+	    String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
+	    inc = Util.getExtentInGC(getFont(), "  " + xAxisTitle + ": " + sXnearestMouse + "  ").x;
+	}
+	if (position == SWT.RIGHT || position == SWT.LEFT) {
+	    int columns = 1;
+	    int yPosition = MARGIN;
+	    int maxCellWidth = 0;
+	    for (ISeries series : seriesArray) {
+		if (!series.isVisibleInLegend()) {
+		    continue;
+		}
+		String label = getLegendLabel(series);
+		int textWidth = Util.getExtentInGC(getFont(), label).x;
+		int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3;
+		maxCellWidth = Math.max(maxCellWidth, cellWidth);
+		if (yPosition + cellHeight < r.height - titleHeight - MARGIN || yPosition == MARGIN) {
+		    yPosition += cellHeight + MARGIN;
+		} else {
+		    columns++;
+		    yPosition = cellHeight + MARGIN * 2;
+		}
+		cellBounds.put(series.getId(), new Rectangle(maxCellWidth * (columns - 1),
+			yPosition - cellHeight - MARGIN, cellWidth, cellHeight));
+		height = Math.max(yPosition, height);
+	    }
+	    width = maxCellWidth * columns;
+	} else if (position == SWT.TOP || position == SWT.BOTTOM) {
+	    int rows = 1;
+	    int xPosition = 0;
+	    /* if they don't fit the panel don't draw */
+	    stopDrawingAtSeries = Integer.MAX_VALUE;
+	    int seriesId = 0;
+	    for (ISeries series : seriesArray) {
+		if (!series.isVisibleInLegend()) {
+		    continue;
+		}
+		String label = getLegendLabel(series);
+		int textWidth = Util.getExtentInGC(getFont(), label).x;
+		int cellWidth = textWidth + SYMBOL_WIDTH + MARGIN * 3 + 20;
+		if (PlotArea.highlight && series.getYSeries().length > xNearestMouse) {
+		    double d = series.getYSeries()[xNearestMouse];
+		    String sYvalue = d == (int) d ? String.valueOf((int) d) : String.valueOf(d);
+		    cellWidth += Util.getExtentInGC(getFont(), sYvalue + "  ").x;
+		}
+		if (PlotArea.highlight) {
+		    if (inc + xPosition + cellWidth < r.width || xPosition == 0)
+			xPosition += cellWidth;
+		    else {
+			rows++;
+			xPosition = cellWidth;
+		    }
+		} else {
+		    if (xPosition + cellWidth < r.width || xPosition == 0)
+			xPosition += cellWidth;
+		    else {
+			rows++;
+			xPosition = cellWidth;
+		    }
+		}
+		cellBounds.put(series.getId(), new Rectangle(xPosition - cellWidth,
+			(cellHeight + MARGIN) * (rows - 1) + MARGIN, cellWidth, cellHeight));
+		if (PlotArea.highlight && rows == 1)
+		    width = Math.max(xPosition + inc, width);
+		else
+		    width = Math.max(xPosition, width);
+
+		/* don't grow to infinity.. */
+		if (((cellHeight + MARGIN) * rows + MARGIN) > MAX_HEIGHT) {
+		    stopDrawingAtSeries = seriesId;
+		    break;
+		}
+		seriesId++;
+	    }
+	    height = (cellHeight + MARGIN) * rows + MARGIN;
+	}
+
+	if (height > MAX_HEIGHT)
+	    height = MAX_HEIGHT;
+
+	setLayoutData(new ChartLayoutData(width, height));
+	//        System.out.println("width: "+width+", height: "+height);
+	//        System.out.println("r.width: "+r.width);
+	//        System.out.println("inc: "+inc);
+
     }
 
     /**
@@ -386,12 +394,12 @@ public class Legend extends Composite implements ILegend, PaintListener {
      * @return the legend label
      */
     private static String getLegendLabel(ISeries series) {
-        String description = series.getDescription();
+	String description = series.getDescription();
 
-        if (description == null) {
-            return series.getId();
-        }
-        return description;
+	if (description == null) {
+	    return series.getId();
+	}
+	return description;
     }
 
     /**
@@ -406,102 +414,99 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     protected void drawSymbol(GC gc, Series series, Rectangle r) {
 
-        if (!visible) {
-            return;
-        }
+	if (!visible) {
+	    return;
+	}
 
-        if (series instanceof ILineSeries) {
-            // draw plot line
-        	gc.setForeground(((ILineSeries) series).getLineColor());
-            gc.setLineWidth(LINE_WIDTH);
-            int lineStyle = Util.getIndexDefinedInSWT(((ILineSeries) series)
-                    .getLineStyle());
-            int x = r.x;
-            int y = r.y + r.height / 2;
-            if (lineStyle != SWT.NONE) {
-                gc.setLineStyle(lineStyle);
-                gc.drawLine(x, y, x + SYMBOL_WIDTH, y);
-            }
+	if (series instanceof ILineSeries) {
+	    // draw plot line
+	    gc.setForeground(((ILineSeries) series).getLineColor());
+	    gc.setLineWidth(LINE_WIDTH);
+	    int lineStyle = Util.getIndexDefinedInSWT(((ILineSeries) series).getLineStyle());
+	    int x = r.x;
+	    int y = r.y + r.height / 2;
+	    if (lineStyle != SWT.NONE) {
+		gc.setLineStyle(lineStyle);
+		gc.drawLine(x, y, x + SYMBOL_WIDTH, y);
+	    }
 
-            // draw series symbol
-            Color color = ((ILineSeries) series).getSymbolColor();
-            Color[] colors = ((ILineSeries) series).getSymbolColors();
-            if (colors != null && colors.length > 0) {
-                color = colors[0];
-            }
-            ((LineSeries) series).drawSeriesSymbol(gc, x + SYMBOL_WIDTH / 2, y,
-                    color);
-        } else if (series instanceof IBarSeries) {
-            // draw riser
-            gc.setBackground(((IBarSeries) series).getBarColor());
-            int size = SYMBOL_WIDTH / 2;
-            int x = r.x + size / 2;
-            int y = (int) (r.y - size / 2d + r.height / 2d);
-            gc.fillRectangle(x, y, size, size);
-        }
+	    // draw series symbol
+	    Color color = ((ILineSeries) series).getSymbolColor();
+	    Color[] colors = ((ILineSeries) series).getSymbolColors();
+	    if (colors != null && colors.length > 0) {
+		color = colors[0];
+	    }
+	    ((LineSeries) series).drawSeriesSymbol(gc, x + SYMBOL_WIDTH / 2, y, color);
+	} else if (series instanceof IBarSeries) {
+	    // draw riser
+	    gc.setBackground(((IBarSeries) series).getBarColor());
+	    int size = SYMBOL_WIDTH / 2;
+	    int x = r.x + size / 2;
+	    int y = (int) (r.y - size / 2d + r.height / 2d);
+	    gc.fillRectangle(x, y, size, size);
+	}
     }
-    
+
     /*
      * @see PaintListener#paintControl(PaintEvent)
      */
     public void paintControl(PaintEvent e) {
-        if (!visible) {
-            return;
-        }
-//        updateLayoutData();
-        GC gc = e.gc;
-        gc.setFont(getFont());
-        ISeries[] seriesArray = chart.getSeriesSet().getSeries();
-        if (seriesArray.length == 0) {
-            return;
-        }
-        // draw frame
-        gc.fillRectangle(0, 0, getSize().x - 1, getSize().y - 1);
-        gc.setLineStyle(SWT.LINE_SOLID);
-        gc.setLineWidth(1);
-        gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
-        gc.drawRectangle(0, 0, getSize().x - 1, getSize().y - 1);
-        gc.setBackground(getBackground());
-        gc.setForeground(getForeground());
-        if(PlotArea.highlight){
-	        String sXnearestMouse = String.format("%."+numDecimals+"f", seriesArray[0].getXSeries()[xNearestMouse]);
-	        sXnearestMouse = sXnearestMouse.replace(',', '.');
-	        String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
-	        gc.drawText(" "+xAxisTitle+": "+sXnearestMouse, 2, 5, true);
-	        inc = Util.getExtentInGC(getFont(), "  "+xAxisTitle+": "+sXnearestMouse+"  ").x;
-        }
-        else
-        	inc = 0;
-        int incTmp = inc;
-        // draw content
-        for (int i = 0; i < seriesArray.length; i++) {
-            if (!seriesArray[i].isVisibleInLegend()) {
-                continue;
-            }            
-            // draw plot line, symbol etc
-            String id = seriesArray[i].getId();
-            Rectangle r = cellBounds.get(id);
-//            System.out.println(r.width);
-            if(r.y>MARGIN)
-            	inc = 0;
-            drawSymbol(gc, (Series) seriesArray[i], new Rectangle(inc+r.x + MARGIN, r.y + MARGIN, SYMBOL_WIDTH, r.height - MARGIN * 2));
-            // draw label
-            String label = seriesArray[i].getDescription();
-            gc.setBackground(getBackground());
-            gc.setForeground(getForeground());
-            //gc.drawText(label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-            if(seriesArray[i].getIcon()!=null)
-            	gc.drawImage((Image)seriesArray[i].getIcon(), inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);  
-            if(PlotArea.highlight){
-            	double yValue = seriesArray[i].getYSeries()[xNearestMouse];
-                String sYvalue = yValue == (int)yValue ? String.valueOf((int)yValue) : String.valueOf(yValue);
-                gc.drawText("     "+label+": "+sYvalue,inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-            }
-            else
-            	gc.drawText("     "+label,inc+r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
-        }
-        inc = incTmp;
-//        updateLayoutData();
+	if (!visible) {
+	    return;
+	}
+	//        updateLayoutData();
+	GC gc = e.gc;
+	gc.setFont(getFont());
+	ISeries[] seriesArray = chart.getSeriesSet().getSeries();
+	if (seriesArray.length == 0) {
+	    return;
+	}
+	// draw frame
+	gc.fillRectangle(0, 0, getSize().x - 1, getSize().y - 1);
+	gc.setLineStyle(SWT.LINE_SOLID);
+	gc.setLineWidth(1);
+	gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
+	gc.drawRectangle(0, 0, getSize().x - 1, getSize().y - 1);
+	gc.setBackground(getBackground());
+	gc.setForeground(getForeground());
+	if (PlotArea.highlight) {
+	    String sXnearestMouse = String.format("%." + numDecimals + "f", seriesArray[0].getXSeries()[xNearestMouse]);
+	    sXnearestMouse = sXnearestMouse.replace(',', '.');
+	    String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
+	    gc.drawText(" " + xAxisTitle + ": " + sXnearestMouse, 2, 5, true);
+	    inc = Util.getExtentInGC(getFont(), "  " + xAxisTitle + ": " + sXnearestMouse + "  ").x;
+	} else
+	    inc = 0;
+	int incTmp = inc;
+	// draw content
+	for (int i = 0; i < seriesArray.length && i < stopDrawingAtSeries; i++) {
+	    if (!seriesArray[i].isVisibleInLegend()) {
+		continue;
+	    }
+	    // draw plot line, symbol etc
+	    String id = seriesArray[i].getId();
+	    Rectangle r = cellBounds.get(id);
+	    //            System.out.println(r.width);
+	    if (r.y > MARGIN)
+		inc = 0;
+	    drawSymbol(gc, (Series) seriesArray[i],
+		    new Rectangle(inc + r.x + MARGIN, r.y + MARGIN, SYMBOL_WIDTH, r.height - MARGIN * 2));
+	    // draw label
+	    String label = seriesArray[i].getDescription();
+	    gc.setBackground(getBackground());
+	    gc.setForeground(getForeground());
+	    //gc.drawText(label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+	    if (seriesArray[i].getIcon() != null)
+		gc.drawImage((Image) seriesArray[i].getIcon(), inc + r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
+	    if (PlotArea.highlight) {
+		double yValue = seriesArray[i].getYSeries()[xNearestMouse];
+		String sYvalue = yValue == (int) yValue ? String.valueOf((int) yValue) : String.valueOf(yValue);
+		gc.drawText("     " + label + ": " + sYvalue, inc + r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+	    } else
+		gc.drawText("     " + label, inc + r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
+	}
+	inc = incTmp;
+	//        updateLayoutData();
     }
-    
+
 }

@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.swtchartplus.internal.series.SeriesSet;
 import org.swtchartplus.internal.ChartLayout;
 import org.swtchartplus.internal.ChartLayoutData;
 import org.swtchartplus.internal.ChartTitle;
@@ -27,13 +26,14 @@ import org.swtchartplus.internal.Legend;
 import org.swtchartplus.internal.PlotArea;
 import org.swtchartplus.internal.Title;
 import org.swtchartplus.internal.axis.AxisSet;
+import org.swtchartplus.internal.series.SeriesSet;
 
 /**
  * A chart which are composed of title, legend, axes and plot area.
  */
 public class Chart extends Composite implements Listener {
 
-    /** the title */ 
+    /** the title */
     private Title title;
 
     /** the legend */
@@ -55,6 +55,7 @@ public class Chart extends Composite implements Listener {
     private boolean updateSuspended;
 
     public Graphics2D g;
+
     /**
      * Constructor.
      * 
@@ -64,26 +65,26 @@ public class Chart extends Composite implements Listener {
      *            the style of widget to construct
      */
     public Chart(Composite parent, int style) {
-        super(parent, style | SWT.DOUBLE_BUFFERED);
+	super(parent, style | SWT.DOUBLE_BUFFERED);
 
-        orientation = SWT.HORIZONTAL;
-        compressEnabled = true;
-        updateSuspended = false;
+	orientation = SWT.HORIZONTAL;
+	compressEnabled = true;
+	updateSuspended = false;
 
-        parent.layout();
+	parent.layout();
 
-        setLayout(new ChartLayout());
+	setLayout(new ChartLayout());
 
-        title = new ChartTitle(this);
-        title.setLayoutData(new ChartLayoutData(SWT.DEFAULT, 100));
-        legend = new Legend(this, SWT.NONE);
-        legend.setLayoutData(new ChartLayoutData(200, SWT.DEFAULT));
-        plotArea = new PlotArea(this, SWT.NONE);
-        axisSet = new AxisSet(this);
+	title = new ChartTitle(this);
+	title.setLayoutData(new ChartLayoutData(SWT.DEFAULT, 100));
+	legend = new Legend(this, SWT.NONE);
+	legend.setLayoutData(new ChartLayoutData(200, SWT.DEFAULT));
+	plotArea = new PlotArea(this, SWT.NONE);
+	axisSet = new AxisSet(this);
 
-        updateLayout();
+	updateLayout();
 
-        addListener(SWT.Resize, this);
+	addListener(SWT.Resize, this);
     }
 
     /**
@@ -92,7 +93,7 @@ public class Chart extends Composite implements Listener {
      * @return the chart title
      */
     public ITitle getTitle() {
-        return title;
+	return title;
     }
 
     /**
@@ -101,7 +102,7 @@ public class Chart extends Composite implements Listener {
      * @return the legend
      */
     public ILegend getLegend() {
-        return legend;
+	return legend;
     }
 
     /**
@@ -110,7 +111,7 @@ public class Chart extends Composite implements Listener {
      * @return the set of axes
      */
     public IAxisSet getAxisSet() {
-        return axisSet;
+	return axisSet;
     }
 
     /**
@@ -119,7 +120,7 @@ public class Chart extends Composite implements Listener {
      * @return the plot area
      */
     public Composite getPlotArea() {
-        return plotArea;
+	return plotArea;
     }
 
     /**
@@ -128,7 +129,7 @@ public class Chart extends Composite implements Listener {
      * @return the set of series
      */
     public ISeriesSet getSeriesSet() {
-        return plotArea.getSeriesSet();
+	return plotArea.getSeriesSet();
     }
 
     /*
@@ -136,13 +137,13 @@ public class Chart extends Composite implements Listener {
      */
     @Override
     public void setBackground(Color color) {
-        super.setBackground(color);
+	super.setBackground(color);
 
-        for (Control child : getChildren()) {
-            if (!(child instanceof PlotArea) && !(child instanceof Legend)) {
-                child.setBackground(color);
-            }
-        }
+	for (Control child : getChildren()) {
+	    if (!(child instanceof PlotArea) && !(child instanceof Legend)) {
+		child.setBackground(color);
+	    }
+	}
     }
 
     /**
@@ -152,7 +153,7 @@ public class Chart extends Composite implements Listener {
      * @return the background color in plot area
      */
     public Color getBackgroundInPlotArea() {
-        return plotArea.getBackground();
+	return plotArea.getBackground();
     }
 
     /**
@@ -165,10 +166,10 @@ public class Chart extends Composite implements Listener {
      *                if given color is disposed
      */
     public void setBackgroundInPlotArea(Color color) {
-        if (color != null && color.isDisposed()) {
-            SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-        }
-        plotArea.setBackground(color);
+	if (color != null && color.isDisposed()) {
+	    SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+	}
+	plotArea.setBackground(color);
     }
 
     /**
@@ -181,10 +182,10 @@ public class Chart extends Composite implements Listener {
      */
     @Override
     public void setOrientation(int orientation) {
-        if (orientation == SWT.HORIZONTAL || orientation == SWT.VERTICAL) {
-            this.orientation = orientation;
-        }
-        updateLayout();
+	if (orientation == SWT.HORIZONTAL || orientation == SWT.VERTICAL) {
+	    this.orientation = orientation;
+	}
+	updateLayout();
     }
 
     /**
@@ -196,7 +197,7 @@ public class Chart extends Composite implements Listener {
      */
     @Override
     public int getOrientation() {
-        return orientation;
+	return orientation;
     }
 
     /**
@@ -209,7 +210,7 @@ public class Chart extends Composite implements Listener {
      *            true if enabling compressing series
      */
     public void enableCompress(boolean enabled) {
-        compressEnabled = enabled;
+	compressEnabled = enabled;
     }
 
     /**
@@ -218,7 +219,7 @@ public class Chart extends Composite implements Listener {
      * @return true if compressing series is enabled
      */
     public boolean isCompressEnabled() {
-        return compressEnabled;
+	return compressEnabled;
     }
 
     /**
@@ -258,16 +259,16 @@ public class Chart extends Composite implements Listener {
      *            true to suspend the update of chart appearance
      */
     public void suspendUpdate(boolean suspend) {
-        if (updateSuspended == suspend) {
-            return;
-        }
-        updateSuspended = suspend;
+	if (updateSuspended == suspend) {
+	    return;
+	}
+	updateSuspended = suspend;
 
-        // make sure that chart is updated
-        if (!suspend) {
-            updateLayout();
-            ((SeriesSet) getSeriesSet()).updateStackAndRiserData();
-        }
+	// make sure that chart is updated
+	if (!suspend) {
+	    updateLayout();
+	    ((SeriesSet) getSeriesSet()).updateStackAndRiserData();
+	}
     }
 
     /**
@@ -276,48 +277,48 @@ public class Chart extends Composite implements Listener {
      * @return true if the update of chart appearance is suspended
      */
     public boolean isUpdateSuspended() {
-        return updateSuspended;
+	return updateSuspended;
     }
 
     /*
      * @see Listener#handleEvent(Event)
      */
     public void handleEvent(Event event) {
-        switch (event.type) {
-        case SWT.Resize:
-            updateLayout();
-            redraw();
-            break;
-        default:
-            break;
-        }
+	switch (event.type) {
+	case SWT.Resize:
+	    updateLayout();
+	    redraw();
+	    break;
+	default:
+	    break;
+	}
     }
 
     /**
      * Updates the layout of chart elements.
      */
     public void updateLayout() {
-        if (updateSuspended) {
-            return;
-        }
+	if (updateSuspended) {
+	    return;
+	}
 
-        if (legend != null) {
-            legend.updateLayoutData();
-        }
+	if (legend != null) {
+	    legend.updateLayoutData();
+	}
 
-        if (title != null) {
-            title.updateLayoutData();
-        }
+	if (title != null) {
+	    title.updateLayoutData();
+	}
 
-        if (axisSet != null) {
-            axisSet.updateLayoutData();
-        }
+	if (axisSet != null) {
+	    axisSet.updateLayoutData();
+	}
 
-        layout();
+	layout();
 
-        if (axisSet != null) {
-            axisSet.refresh();
-        }
+	if (axisSet != null) {
+	    axisSet.refresh();
+	}
     }
 
     /*
@@ -325,10 +326,10 @@ public class Chart extends Composite implements Listener {
      */
     @Override
     public void update() {
-        super.update();
-        for (Control child : getChildren()) {
-            child.update();
-        }
+	super.update();
+	for (Control child : getChildren()) {
+	    child.update();
+	}
     }
 
     /*
@@ -336,11 +337,11 @@ public class Chart extends Composite implements Listener {
      */
     @Override
     public void dispose() {
-        title.dispose();
-        legend.dispose();
-        axisSet.dispose();
-        plotArea.dispose();
-        super.dispose();
+	title.dispose();
+	legend.dispose();
+	axisSet.dispose();
+	plotArea.dispose();
+	super.dispose();
     }
 
     /*
@@ -348,10 +349,10 @@ public class Chart extends Composite implements Listener {
      */
     @Override
     public void redraw() {
-        super.redraw();
-        for (Control child : getChildren()) {
-            child.redraw();
-        }
+	super.redraw();
+	for (Control child : getChildren()) {
+	    child.redraw();
+	}
     }
 
     /**
@@ -363,17 +364,17 @@ public class Chart extends Composite implements Listener {
      *            the format (SWT.IMAGE_*). The supported formats depend on OS.
      */
     public void save(String filename, int format) {
-        Image image = new Image(Display.getDefault(), getBounds());
+	Image image = new Image(Display.getDefault(), getBounds());
 
-        GC gc = new GC(image);
-        print(gc);
-        gc.dispose();
+	GC gc = new GC(image);
+	print(gc);
+	gc.dispose();
 
-        ImageData data = image.getImageData();
-        ImageLoader loader = new ImageLoader();
-        loader.data = new ImageData[] { data };
-        loader.save(filename, format);
-        image.dispose();
+	ImageData data = image.getImageData();
+	ImageLoader loader = new ImageLoader();
+	loader.data = new ImageData[] { data };
+	loader.save(filename, format);
+	image.dispose();
     }
 
     /**
@@ -383,9 +384,9 @@ public class Chart extends Composite implements Listener {
      *            The image to render off-screen
      */
     public void renderOffscreenImage(Image image) {
-        GC gc = new GC(image);
-        print(gc);
-        gc.dispose();
+	GC gc = new GC(image);
+	print(gc);
+	gc.dispose();
     }
-    
+
 }

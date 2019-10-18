@@ -26,6 +26,22 @@ public interface ISeriesSet {
     ISeries createSeries(SeriesType type, String id);
 
     /**
+     * Creates the series. If series for given id already exists, the existing
+     * series will be overwritten.
+     * 
+     * @param type
+     *            the series type
+     * @param id
+     *            the id for series
+     * @param updateChart
+     * 		  true if you want also to graphically update the chart (default)
+     * 		  set this to false if you are adding a lot of series and manually
+     * 		  call chart.updateLayout() at the end of the insertion.
+     * @return the series
+     */
+    ISeries createSeries(SeriesType type, String id, boolean updateChart);
+
+    /**
      * Gets the series for given id.
      * 
      * @param id
