@@ -286,7 +286,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
      * Update the layout data.
      */
     public void updateLayoutData() {
-	if (!visible || chart.getSeriesSet().getSeries().length == 0) {
+	if (!visible || xNearestMouse < 0 || chart.getSeriesSet().getSeries().length <= 0) {
 	    setLayoutData(new ChartLayoutData(0, 0));
 	    return;
 	}
@@ -470,7 +470,12 @@ public class Legend extends Composite implements ILegend, PaintListener {
 	gc.setBackground(getBackground());
 	gc.setForeground(getForeground());
 	if (PlotArea.highlight) {
-	    String sXnearestMouse = String.format("%." + numDecimals + "f", seriesArray[0].getXSeries()[xNearestMouse]);
+	    double nearest;
+	    if (seriesArray[0].getXSeries().length > xNearestMouse)
+		nearest = seriesArray[0].getXSeries()[xNearestMouse];
+	    else
+		nearest = seriesArray[0].getXSeries()[seriesArray[0].getXSeries().length - 1];
+	    String sXnearestMouse = String.format("%." + numDecimals + "f", nearest);
 	    sXnearestMouse = sXnearestMouse.replace(',', '.');
 	    String xAxisTitle = chart.getAxisSet().getXAxis(0).getTitle().getText();
 	    gc.drawText(" " + xAxisTitle + ": " + sXnearestMouse, 2, 5, true);
@@ -499,7 +504,12 @@ public class Legend extends Composite implements ILegend, PaintListener {
 	    if (seriesArray[i].getIcon() != null)
 		gc.drawImage((Image) seriesArray[i].getIcon(), inc + r.x + SYMBOL_WIDTH + MARGIN * 2, r.y);
 	    if (PlotArea.highlight) {
-		double yValue = seriesArray[i].getYSeries()[xNearestMouse];
+		double yValue;
+		if (seriesArray[i].getXSeries().length > xNearestMouse)
+		    yValue = seriesArray[i].getYSeries()[xNearestMouse];
+		else
+		    yValue = seriesArray[i].getYSeries()[seriesArray[i].getYSeries().length - 1];
+
 		String sYvalue = yValue == (int) yValue ? String.valueOf((int) yValue) : String.valueOf(yValue);
 		gc.drawText("     " + label + ": " + sYvalue, inc + r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
 	    } else

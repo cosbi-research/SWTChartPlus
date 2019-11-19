@@ -193,16 +193,35 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
 	    }
 	}
 	e.gc.setBackground(oldBackground);
-	//System.err.println("PlotArea.paintControl() - draw mouse red dot");
+
+	// if nearest mouse is out of bounds skip draw
+	if (Legend.xNearestMouse < 0) {
+	    System.err.println(
+		    "Couldn't display series position for an out-of-range series element: " + Legend.xNearestMouse);
+	    return;
+	}
+
 	if (highlight && InteractiveChart.propertiesDialogOpen == false && isFocusControl()) {
 	    gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 	    gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 	    gc.setAlpha(255);
 	    for (ISeries serie : chart.getSeriesSet().getSeries()) {
-		int xCorner = chart.getAxisSet().getXAxis(0)
-			.getPixelCoordinate(serie.getXSeries()[Legend.xNearestMouse]);
-		int yCorner = chart.getAxisSet().getYAxis(0)
-			.getPixelCoordinate(serie.getYSeries()[Legend.xNearestMouse]);
+		int xCorner;
+		if (serie.getXSeries().length > Legend.xNearestMouse)
+		    xCorner = chart.getAxisSet().getXAxis(0)
+			    .getPixelCoordinate(serie.getXSeries()[Legend.xNearestMouse]);
+		else
+		    xCorner = chart.getAxisSet().getXAxis(0)
+			    .getPixelCoordinate(serie.getXSeries()[serie.getXSeries().length - 1]);
+
+		int yCorner;
+
+		if (serie.getYSeries().length > Legend.xNearestMouse)
+		    yCorner = chart.getAxisSet().getYAxis(0)
+			    .getPixelCoordinate(serie.getYSeries()[Legend.xNearestMouse]);
+		else
+		    yCorner = chart.getAxisSet().getYAxis(0)
+			    .getPixelCoordinate(serie.getYSeries()[serie.getYSeries().length - 1]);
 		PlotSymbolType typeSymbolHighlighted = ((ILineSeries) serie).getSymbolType();
 		int sizeSymbolHighlighted = ((ILineSeries) serie).getSymbolSize() + 2;
 		if (typeSymbolHighlighted == PlotSymbolType.NONE) {
