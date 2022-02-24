@@ -11,3 +11,6 @@ This project builds on sourceforge SWTChart project adding the following:
 - toggle log/linear scale with Ctrl+L
 - possibility to set the mouse icon while scrolling
 - possibility to view the mouse coordinates in the graph in a label passed to the method setLblMousePosition
+
+For any information or request you may want to get in touch with the [COSBI Bioinformatics lab](mailto:bioinformatics@cosbi.eu). We'll be happy to help!
+
